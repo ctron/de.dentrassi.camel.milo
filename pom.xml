@@ -17,6 +17,28 @@
         implementation of Eclipse Milo™.
     </description>
 
+	<inceptionYear>2014</inceptionYear>
+
+	<developers>
+		<developer>
+			<id>ctron</id>
+			<name>Jens Reimann</name>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/ctron/de.dentrassi.camel.milo</connection>
+		<url>https://github.com/ctron/de.dentrassi.camel.milo</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<properties>
 		<version.milo>0.1.0-SNAPSHOT</version.milo>
 		<camel.osgi.export.pkg>de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
