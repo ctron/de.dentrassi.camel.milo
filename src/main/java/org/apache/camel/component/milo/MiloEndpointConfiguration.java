@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.client;
+package org.apache.camel.component.milo;
 
 import java.net.URI;
 
-public class OpcUaClientEndpointConfiguration implements Cloneable {
+public class MiloEndpointConfiguration implements Cloneable {
 
 	private String host;
 
@@ -28,10 +28,10 @@ public class OpcUaClientEndpointConfiguration implements Cloneable {
 
 	private String item;
 
-	public OpcUaClientEndpointConfiguration() {
+	public MiloEndpointConfiguration() {
 	}
 
-	public OpcUaClientEndpointConfiguration(final OpcUaClientEndpointConfiguration other) {
+	public MiloEndpointConfiguration(final MiloEndpointConfiguration other) {
 		this.host = other.host;
 		this.port = other.port;
 		this.item = other.item;
@@ -75,17 +75,17 @@ public class OpcUaClientEndpointConfiguration implements Cloneable {
 	}
 
 	@Override
-	public OpcUaClientEndpointConfiguration clone() {
-		return new OpcUaClientEndpointConfiguration(this);
+	public MiloEndpointConfiguration clone() {
+		return new MiloEndpointConfiguration(this);
 	}
 
-	public static OpcUaClientEndpointConfiguration fromUri(final URI uri) {
+	public static MiloEndpointConfiguration fromUri(final URI uri) {
 
 		if (!"tcp".equals(uri.getScheme())) {
 			return null;
 		}
 
-		final OpcUaClientEndpointConfiguration result = new OpcUaClientEndpointConfiguration();
+		final MiloEndpointConfiguration result = new MiloEndpointConfiguration();
 
 		// connection related
 

@@ -1,1 +1,1 @@
-class=de.dentrassi.camel.milo.server.OpcUaServerComponent
+class=org.apache.camel.component.milo.server.OpcUaServerComponent

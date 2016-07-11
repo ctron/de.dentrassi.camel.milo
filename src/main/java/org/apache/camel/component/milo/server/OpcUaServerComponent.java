@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.server;
+package org.apache.camel.component.milo.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
 
-import de.dentrassi.camel.milo.server.internal.CamelNamespace;
+import org.apache.camel.component.milo.server.internal.CamelNamespace;
 
 /**
  * OPC UA Server based component

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.client;
+package org.apache.camel.component.milo;
 
 import java.util.Objects;
 
@@ -27,20 +27,20 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.dentrassi.camel.milo.client.OpcUaClientConnection.MonitorHandle;
+import org.apache.camel.component.milo.MiloConnection.MonitorHandle;
 
-public class OpcUaClientConsumer extends DefaultConsumer {
+public class MiloConsumer extends DefaultConsumer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloConsumer.class);
 
-	private final OpcUaClientConnection connection;
+	private final MiloConnection connection;
 
-	private final OpcUaClientEndpointConfiguration configuraton;
+	private final MiloEndpointConfiguration configuraton;
 
 	private MonitorHandle handle;
 
-	public OpcUaClientConsumer(final OpcUaClientEndpoint endpoint, final Processor processor,
-			final OpcUaClientConnection connection, final OpcUaClientEndpointConfiguration configuration) {
+	public MiloConsumer(final MiloEndpoint endpoint, final Processor processor,
+						final MiloConnection connection, final MiloEndpointConfiguration configuration) {
 		super(endpoint, processor);
 
 		Objects.requireNonNull(connection);

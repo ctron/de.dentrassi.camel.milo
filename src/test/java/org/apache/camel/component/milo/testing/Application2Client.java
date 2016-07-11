@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.testing;
+package org.apache.camel.component.milo.testing;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
 
+import org.apache.camel.component.milo.MiloComponent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -30,9 +31,7 @@ import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
-import de.dentrassi.camel.milo.server.OpcUaServerComponent;
-
-public class Application2Server {
+public class Application2Client {
 	public static void main(final String[] args) throws Exception {
 
 		// camel conext
@@ -56,7 +55,7 @@ public class Application2Server {
 
 		// add OPC UA
 
-		context.addComponent("opcuaserver", new OpcUaServerComponent(cfg));
+		context.addComponent("opcuaclient", new MiloComponent());
 
 		// add routes
 
@@ -64,22 +63,9 @@ public class Application2Server {
 
 			@Override
 			public void configure() throws Exception {
-				/*
-				 * from(
-				 * "paho:javaonedemo/eclipse-greenhouse-9home/sensors/temperature?brokerUrl=tcp://iot.eclipse.org:1883")
-				 * .log("Temp update: ${body}").convertBodyTo(String.class).to(
-				 * "opcuaserver:MyItem");
-				 */
-
-				from("paho:my/foo/bar?brokerUrl=tcp://iot.eclipse.org:1883").log("Temp update: ${body}")
-						.convertBodyTo(String.class).to("opcuaserver:MyItem");
-
-				from("opcuaserver:MyItem").log("MyItem: ${body}");
-				from("opcuaserver:MyItem2").log("MyItem2: ${body}").convertBodyTo(String.class)
-						.to("paho:de/dentrassi/camel/milo/temperature?brokerUrl=tcp://iot.eclipse.org:1883");
-
-				from("paho:de/dentrassi/camel/milo/temperature?brokerUrl=tcp://iot.eclipse.org:1883")
-						.log("Back from MQTT: ${body}");
+				from("opcuaclient:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
+						.log("From OPC UA: ${body}")
+						.to("opcuaclient:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
 			}
 		});
 

@@ -1,1 +1,1 @@
-class=de.dentrassi.camel.milo.client.OpcUaClientComponent
+class=org.apache.camel.component.milo.MiloComponent

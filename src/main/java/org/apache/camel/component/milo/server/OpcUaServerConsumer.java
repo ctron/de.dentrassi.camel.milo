@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.server;
+package org.apache.camel.component.milo.server;
 
 import java.util.function.Consumer;
 
@@ -25,7 +25,7 @@ import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultMessage;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 
-import de.dentrassi.camel.milo.server.internal.CamelServerItem;
+import org.apache.camel.component.milo.server.internal.CamelServerItem;
 
 public class OpcUaServerConsumer extends DefaultConsumer {
 

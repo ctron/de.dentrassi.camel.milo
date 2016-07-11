@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.client;
+package org.apache.camel.component.milo;
 
 import java.net.URI;
 import java.util.Objects;
@@ -27,8 +27,8 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriPath;
 
-@UriEndpoint(scheme = "opcuaclient", syntax = "opcuaclient:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = OpcUaClientConsumer.class, label = "iot")
-public class OpcUaClientEndpoint extends DefaultEndpoint {
+@UriEndpoint(scheme = "opcuaclient", syntax = "opcuaclient:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = MiloConsumer.class, label = "iot")
+public class MiloEndpoint extends DefaultEndpoint {
 
 	/**
 	 * The main path
@@ -37,12 +37,12 @@ public class OpcUaClientEndpoint extends DefaultEndpoint {
 	@Metadata(required = "true")
 	private final String path;
 
-	private final OpcUaClientConnection connection;
-	private final OpcUaClientComponent component;
-	private final OpcUaClientEndpointConfiguration configuration;
+	private final MiloConnection connection;
+	private final MiloComponent component;
+	private final MiloEndpointConfiguration configuration;
 
-	public OpcUaClientEndpoint(final String uri, final URI itemUri, final OpcUaClientComponent component,
-			final OpcUaClientConnection connection, final OpcUaClientEndpointConfiguration configuration) {
+	public MiloEndpoint(final String uri, final URI itemUri, final MiloComponent component,
+						final MiloConnection connection, final MiloEndpointConfiguration configuration) {
 		super(uri, component);
 
 		Objects.requireNonNull(component);
@@ -69,12 +69,12 @@ public class OpcUaClientEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return new OpcUaClientProducer(this, this.connection, this.configuration);
+		return new MiloProducer(this, this.connection, this.configuration);
 	}
 
 	@Override
 	public Consumer createConsumer(final Processor processor) throws Exception {
-		return new OpcUaClientConsumer(this, processor, this.connection, this.configuration);
+		return new MiloConsumer(this, processor, this.connection, this.configuration);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class OpcUaClientEndpoint extends DefaultEndpoint {
 		return true;
 	}
 
-	public OpcUaClientConnection getConnection() {
+	public MiloConnection getConnection() {
 		return this.connection;
 	}
 

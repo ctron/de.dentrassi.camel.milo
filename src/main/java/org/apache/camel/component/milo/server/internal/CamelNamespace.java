@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.server.internal;
+package org.apache.camel.component.milo.server.internal;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,13 +50,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import de.dentrassi.camel.milo.client.OpcUaClientConsumer;
+import org.apache.camel.component.milo.MiloConsumer;
 
 public class CamelNamespace implements Namespace {
 
 	public static final String NAMESPACE_URI = "urn:camel";
 
-	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloConsumer.class);
 
 	private final UShort namespaceIndex;
 	private final OpcUaServer server;

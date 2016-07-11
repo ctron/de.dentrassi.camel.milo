@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.server;
+package org.apache.camel.component.milo.server;
 
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
@@ -25,8 +25,8 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriPath;
 
-import de.dentrassi.camel.milo.server.internal.CamelNamespace;
-import de.dentrassi.camel.milo.server.internal.CamelServerItem;
+import org.apache.camel.component.milo.server.internal.CamelNamespace;
+import org.apache.camel.component.milo.server.internal.CamelServerItem;
 
 /**
  * OPC UA Server based endpoint

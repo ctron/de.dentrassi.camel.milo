@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.client;
+package org.apache.camel.component.milo;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -28,15 +28,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class OpcUaClientComponent extends UriEndpointComponent {
+public class MiloComponent extends UriEndpointComponent {
 
-	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientComponent.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloComponent.class);
 
-	private final Map<String, OpcUaClientConnection> cache = new HashMap<>();
-	private final Multimap<String, OpcUaClientEndpoint> connectionMap = HashMultimap.create();
+	private final Map<String, MiloConnection> cache = new HashMap<>();
+	private final Multimap<String, MiloEndpoint> connectionMap = HashMultimap.create();
 
-	public OpcUaClientComponent() {
-		super(OpcUaClientEndpoint.class);
+	public MiloComponent() {
+		super(MiloEndpoint.class);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class OpcUaClientComponent extends UriEndpointComponent {
 
 		final URI itemUri = URI.create(remaining);
 
-		final OpcUaClientEndpointConfiguration configuration = OpcUaClientEndpointConfiguration.fromUri(itemUri);
+		final MiloEndpointConfiguration configuration = MiloEndpointConfiguration.fromUri(itemUri);
 
 		if (configuration == null) {
 			return null;
@@ -56,28 +56,28 @@ public class OpcUaClientComponent extends UriEndpointComponent {
 		return createEndpoint(uri, itemUri, configuration);
 	}
 
-	private synchronized OpcUaClientEndpoint createEndpoint(final String uri, final URI itemUri,
-			final OpcUaClientEndpointConfiguration configuration) {
+	private synchronized MiloEndpoint createEndpoint(final String uri, final URI itemUri,
+													 final MiloEndpointConfiguration configuration) {
 
-		OpcUaClientConnection connection = this.cache.get(configuration.toConnectionCacheId());
+		MiloConnection connection = this.cache.get(configuration.toConnectionCacheId());
 
 		if (connection == null) {
 			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toConnectionCacheId());
 
-			connection = new OpcUaClientConnection(configuration);
+			connection = new MiloConnection(configuration);
 			this.cache.put(configuration.toConnectionCacheId(), connection);
 		}
 
-		final OpcUaClientEndpoint endpoint = new OpcUaClientEndpoint(uri, itemUri, this, connection, configuration);
+		final MiloEndpoint endpoint = new MiloEndpoint(uri, itemUri, this, connection, configuration);
 
 		this.connectionMap.put(connection.getConnectionId(), endpoint);
 
 		return endpoint;
 	}
 
-	public synchronized void disposed(final OpcUaClientEndpoint endpoint) {
+	public synchronized void disposed(final MiloEndpoint endpoint) {
 
-		final OpcUaClientConnection connection = endpoint.getConnection();
+		final MiloConnection connection = endpoint.getConnection();
 
 		// unregister usage of connection
 

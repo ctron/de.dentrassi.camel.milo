@@ -14,26 +14,38 @@
  * limitations under the License.
  */
 
-package de.dentrassi.camel.milo.server;
+package org.apache.camel.component.milo;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.dentrassi.camel.milo.server.internal.CamelServerItem;
+public class MiloProducer extends DefaultProducer {
 
-public class OpcUaServerProducer extends DefaultProducer {
+	private static final Logger LOG = LoggerFactory.getLogger(MiloConsumer.class);
 
-	private final CamelServerItem item;
+	private final MiloConnection connection;
+	private final MiloEndpointConfiguration configuration;
 
-	public OpcUaServerProducer(final Endpoint endpoint, final CamelServerItem item) {
+	public MiloProducer(final Endpoint endpoint, final MiloConnection connection,
+						final MiloEndpointConfiguration configuration) {
 		super(endpoint);
-		this.item = item;
+
+		this.connection = connection;
+		this.configuration = configuration;
 	}
 
 	@Override
 	public void process(final Exchange exchange) throws Exception {
-		final Object value = exchange.getIn().getBody();
-		this.item.update(value);
+		final Message msg = exchange.getIn();
+		final Object value = msg.getBody();
+
+		LOG.debug("Processing message: {}", value);
+
+		this.connection.writeValue(this.configuration.getNamespaceUri(), this.configuration.getItem(), value);
 	}
+
 }
