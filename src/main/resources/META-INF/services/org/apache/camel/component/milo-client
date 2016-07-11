@@ -1,1 +1,1 @@
-class=org.apache.camel.component.milo.MiloComponent
+class=org.apache.camel.component.milo.client.MiloComponent

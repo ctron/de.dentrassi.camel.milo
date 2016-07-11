@@ -42,10 +42,10 @@
 		<!-- we do require java 8 -->
 		<jdk.version>1.8</jdk.version>
 		
-		<camel.osgi.export.pkg>!*.internal.*,de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
+		<camel.osgi.export.pkg>!*.internal.*,org.apache.camel.component.milo.*</camel.osgi.export.pkg>
 		<camel.osgi.export.service>
-			org.apache.camel.spi.ComponentResolver;component=opcuaserver,
-			org.apache.camel.spi.ComponentResolver;component=opcuaclient
+			org.apache.camel.spi.ComponentResolver;component=milo-client,
+			org.apache.camel.spi.ComponentResolver;component=milo-server
 		</camel.osgi.export.service>
 	</properties>
 
