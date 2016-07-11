@@ -55,7 +55,10 @@ public class Application {
 
 		// add OPC UA
 
-		context.addComponent("milo-server", new MiloServerComponent(cfg));
+		final MiloServerComponent miloServer = new MiloServerComponent();
+		miloServer.setServerConfig(cfg.build());
+		context.addComponent("milo-server", miloServer);
+
 		// no need to register, gets auto detected
 		// context.addComponent("milo-client", new MiloClientComponent());
 
