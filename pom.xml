@@ -10,7 +10,7 @@
 
 	<groupId>de.dentrassi.camel</groupId>
 	<artifactId>de.dentrassi.camel.milo</artifactId>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 
 	<name>Apache Camel adapter for Eclipse Milo</name>
 	<description>This is an Apache Camel adapter for OPC UA based on the implementation of Eclipse Milo™.</description>
@@ -42,6 +42,8 @@
 
 		<!-- we do require java 8 -->
 		<jdk.version>1.8</jdk.version>
+		
+		<maven-bundle-plugin-version>2.5.0</maven-bundle-plugin-version>
 
 		<camel.osgi.export.pkg>de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
 		<camel.osgi.export.service>
