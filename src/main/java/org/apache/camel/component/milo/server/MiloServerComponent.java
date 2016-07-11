@@ -29,15 +29,15 @@ import org.apache.camel.component.milo.server.internal.CamelNamespace;
 /**
  * OPC UA Server based component
  */
-public class OpcUaServerComponent extends UriEndpointComponent {
+public class MiloServerComponent extends UriEndpointComponent {
 
 	private final OpcUaServer server;
 	private final CamelNamespace namespace;
 
-	private final Map<String, OpcUaServerEndpoint> endpoints = new HashMap<>();
+	private final Map<String, MiloServerEndpoint> endpoints = new HashMap<>();
 
-	public OpcUaServerComponent(final OpcUaServerConfigBuilder cfgBuilder) {
-		super(OpcUaServerEndpoint.class);
+	public MiloServerComponent(final OpcUaServerConfigBuilder cfgBuilder) {
+		super(MiloServerEndpoint.class);
 
 		this.server = new OpcUaServer(cfgBuilder.build());
 
@@ -65,10 +65,10 @@ public class OpcUaServerComponent extends UriEndpointComponent {
 				return null;
 			}
 
-			OpcUaServerEndpoint endpoint = this.endpoints.get(remaining);
+			MiloServerEndpoint endpoint = this.endpoints.get(remaining);
 
 			if (endpoint == null) {
-				endpoint = new OpcUaServerEndpoint(uri, remaining, this.namespace, this);
+				endpoint = new MiloServerEndpoint(uri, remaining, this.namespace, this);
 				setProperties(endpoint, parameters);
 				this.endpoints.put(remaining, endpoint);
 			}

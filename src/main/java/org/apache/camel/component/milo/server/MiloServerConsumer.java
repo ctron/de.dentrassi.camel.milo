@@ -27,12 +27,12 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 
 import org.apache.camel.component.milo.server.internal.CamelServerItem;
 
-public class OpcUaServerConsumer extends DefaultConsumer {
+public class MiloServerConsumer extends DefaultConsumer {
 
 	private final CamelServerItem item;
 	private final Consumer<DataValue> writeHandler = this::performWrite;
 
-	public OpcUaServerConsumer(final Endpoint endpoint, final Processor processor, final CamelServerItem item) {
+	public MiloServerConsumer(final Endpoint endpoint, final Processor processor, final CamelServerItem item) {
 		super(endpoint, processor);
 		this.item = item;
 	}

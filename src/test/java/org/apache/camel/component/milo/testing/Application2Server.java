@@ -30,7 +30,7 @@ import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
-import org.apache.camel.component.milo.server.OpcUaServerComponent;
+import org.apache.camel.component.milo.server.MiloServerComponent;
 
 public class Application2Server {
 	public static void main(final String[] args) throws Exception {
@@ -56,7 +56,7 @@ public class Application2Server {
 
 		// add OPC UA
 
-		context.addComponent("opcuaserver", new OpcUaServerComponent(cfg));
+		context.addComponent("opcuaserver", new MiloServerComponent(cfg));
 
 		// add routes
 

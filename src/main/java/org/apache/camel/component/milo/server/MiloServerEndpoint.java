@@ -31,8 +31,8 @@ import org.apache.camel.component.milo.server.internal.CamelServerItem;
 /**
  * OPC UA Server based endpoint
  */
-@UriEndpoint(scheme = "opcuaserver", syntax = "opcuaserver:ItemId", title = "OPC UA Server", consumerClass = OpcUaServerConsumer.class, label = "iot")
-public class OpcUaServerEndpoint extends DefaultEndpoint {
+@UriEndpoint(scheme = "opcuaserver", syntax = "opcuaserver:ItemId", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
+public class MiloServerEndpoint extends DefaultEndpoint {
 
 	@UriPath(label = "Item ID", description = "The ID of the item")
 	@Metadata(required = "true")
@@ -42,8 +42,8 @@ public class OpcUaServerEndpoint extends DefaultEndpoint {
 
 	private CamelServerItem item;
 
-	public OpcUaServerEndpoint(final String uri, final String itemId, final CamelNamespace namespace,
-			final Component component) {
+	public MiloServerEndpoint(final String uri, final String itemId, final CamelNamespace namespace,
+							  final Component component) {
 		super(uri, component);
 		this.itemId = itemId;
 		this.namespace = namespace;
@@ -72,12 +72,12 @@ public class OpcUaServerEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return new OpcUaServerProducer(this, this.item);
+		return new MiloServerProducer(this, this.item);
 	}
 
 	@Override
 	public Consumer createConsumer(final Processor processor) throws Exception {
-		return new OpcUaServerConsumer(this, processor, this.item);
+		return new MiloServerConsumer(this, processor, this.item);
 	}
 
 	@Override

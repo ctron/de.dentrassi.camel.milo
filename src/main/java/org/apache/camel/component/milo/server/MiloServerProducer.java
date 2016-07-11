@@ -22,11 +22,11 @@ import org.apache.camel.impl.DefaultProducer;
 
 import org.apache.camel.component.milo.server.internal.CamelServerItem;
 
-public class OpcUaServerProducer extends DefaultProducer {
+public class MiloServerProducer extends DefaultProducer {
 
 	private final CamelServerItem item;
 
-	public OpcUaServerProducer(final Endpoint endpoint, final CamelServerItem item) {
+	public MiloServerProducer(final Endpoint endpoint, final CamelServerItem item) {
 		super(endpoint);
 		this.item = item;
 	}
