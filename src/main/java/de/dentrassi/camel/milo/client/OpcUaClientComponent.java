@@ -68,7 +68,7 @@ public class OpcUaClientComponent extends UriEndpointComponent {
 			this.cache.put(configuration.toConnectionCacheId(), connection);
 		}
 
-		final OpcUaClientEndpoint endpoint = new OpcUaClientEndpoint(uri, this, connection, configuration);
+		final OpcUaClientEndpoint endpoint = new OpcUaClientEndpoint(uri, itemUri, this, connection, configuration);
 
 		this.connectionMap.put(connection.getConnectionId(), endpoint);
 

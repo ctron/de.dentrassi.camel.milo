@@ -23,14 +23,10 @@ import org.eclipse.milo.opcua.stack.core.Stack;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.dentrassi.camel.milo.client.internal.SubscriptionManager;
 
 public class OpcUaClientConnection implements AutoCloseable {
-
-	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientConnection.class);
 
 	private final OpcUaClientEndpointConfiguration configuration;
 
@@ -46,7 +42,6 @@ public class OpcUaClientConnection implements AutoCloseable {
 	}
 
 	protected void init() throws Exception {
-
 		this.manager = new SubscriptionManager(this.configuration, Stack.sharedScheduledExecutor(), 10_000);
 	}
 
@@ -104,6 +99,13 @@ public class OpcUaClientConnection implements AutoCloseable {
 		this.manager.write(namespaceUri, item, mapValue(value));
 	}
 
+	/**
+	 * Map the incoming value to some value writable to the milo client
+	 *
+	 * @param value
+	 *            the incoming value
+	 * @return the outgoing value
+	 */
 	private DataValue mapValue(final Object value) {
 		if (value instanceof DataValue) {
 			return (DataValue) value;

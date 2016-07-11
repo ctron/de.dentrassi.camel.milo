@@ -16,28 +16,40 @@
 
 package de.dentrassi.camel.milo.client;
 
+import java.net.URI;
 import java.util.Objects;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.spi.UriPath;
 
 @UriEndpoint(scheme = "opcuaclient", syntax = "opcuaclient:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = OpcUaClientConsumer.class, label = "iot")
 public class OpcUaClientEndpoint extends DefaultEndpoint {
+
+	/**
+	 * The main path
+	 */
+	@UriPath
+	@Metadata(required = "true")
+	private final String path;
 
 	private final OpcUaClientConnection connection;
 	private final OpcUaClientComponent component;
 	private final OpcUaClientEndpointConfiguration configuration;
 
-	public OpcUaClientEndpoint(final String uri, final OpcUaClientComponent component,
+	public OpcUaClientEndpoint(final String uri, final URI itemUri, final OpcUaClientComponent component,
 			final OpcUaClientConnection connection, final OpcUaClientEndpointConfiguration configuration) {
 		super(uri, component);
 
 		Objects.requireNonNull(component);
 		Objects.requireNonNull(connection);
 		Objects.requireNonNull(configuration);
+
+		this.path = itemUri.toString();
 
 		this.component = component;
 		this.connection = connection;

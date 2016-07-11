@@ -10,14 +10,12 @@
 
 	<groupId>de.dentrassi.camel</groupId>
 	<artifactId>de.dentrassi.camel.milo</artifactId>
+	<packaging>jar</packaging>
 
 	<name>Apache Camel adapter for Eclipse Milo</name>
-	<description>
-        This is an Apache Camel adapter for OPC UA based on the OPC UA
-        implementation of Eclipse Milo™.
-    </description>
+	<description>This is an Apache Camel adapter for OPC UA based on the implementation of Eclipse Milo™.</description>
 
-	<inceptionYear>2014</inceptionYear>
+	<inceptionYear>2016</inceptionYear>
 
 	<developers>
 		<developer>
@@ -40,12 +38,20 @@
 	</licenses>
 
 	<properties>
-		<version.milo>0.1.0-SNAPSHOT</version.milo>
+		<eclipse-milo-version>0.1.0-SNAPSHOT</eclipse-milo-version>
+
+		<!-- we do require java 8 -->
+		<jdk.version>1.8</jdk.version>
+
 		<camel.osgi.export.pkg>de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
-		<camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=opcuaserver</camel.osgi.export.service>
+		<camel.osgi.export.service>
+			org.apache.camel.spi.ComponentResolver;component=opcuaserver,
+			org.apache.camel.spi.ComponentResolver;component=opcuaclient
+		</camel.osgi.export.service>
 	</properties>
 
 	<repositories>
+		<!-- enable snapshots for milo -->
 		<repository>
 			<id>oss-sonatype</id>
 			<name>oss-sonatype</name>
@@ -67,13 +73,13 @@
 		<dependency>
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>sdk-server</artifactId>
-			<version>${version.milo}</version>
+			<version>${eclipse-milo-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.milo</groupId>
 			<artifactId>sdk-client</artifactId>
-			<version>${version.milo}</version>
+			<version>${eclipse-milo-version}</version>
 		</dependency>
 
 		<dependency>
@@ -84,7 +90,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.7</version>
+			<version>${logback-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
