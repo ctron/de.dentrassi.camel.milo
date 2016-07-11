@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
+import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
 
 import org.apache.camel.component.milo.server.internal.CamelNamespace;
@@ -31,22 +32,24 @@ import org.apache.camel.component.milo.server.internal.CamelNamespace;
  */
 public class MiloServerComponent extends UriEndpointComponent {
 
-	private final OpcUaServer server;
-	private final CamelNamespace namespace;
+	private OpcUaServerConfig serverConfig;
+
+	private OpcUaServer server;
+	private CamelNamespace namespace;
 
 	private final Map<String, MiloServerEndpoint> endpoints = new HashMap<>();
 
-	public MiloServerComponent(final OpcUaServerConfigBuilder cfgBuilder) {
+	public MiloServerComponent() {
 		super(MiloServerEndpoint.class);
-
-		this.server = new OpcUaServer(cfgBuilder.build());
-
-		this.namespace = this.server.getNamespaceManager().registerAndAdd(CamelNamespace.NAMESPACE_URI,
-				ctx -> new CamelNamespace(ctx, this.server));
 	}
 
 	@Override
 	protected void doStart() throws Exception {
+		this.server = new OpcUaServer(serverConfig);
+
+		this.namespace = this.server.getNamespaceManager().registerAndAdd(CamelNamespace.NAMESPACE_URI,
+				ctx -> new CamelNamespace(ctx, this.server));
+
 		super.doStart();
 		this.server.startup();
 	}
@@ -75,6 +78,14 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 			return endpoint;
 		}
+	}
+
+	public OpcUaServerConfig getServerConfig() {
+		return serverConfig;
+	}
+
+	public void setServerConfig(OpcUaServerConfig serverConfig) {
+		this.serverConfig = serverConfig;
 	}
 
 }

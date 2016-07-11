@@ -57,7 +57,9 @@ public class Application {
 
 		// add OPC UA
 
-		context.addComponent("milo-server", new MiloServerComponent(cfg));
+		MiloServerComponent miloServer = new MiloServerComponent();
+		miloServer.setServerConfig(cfg.build());
+		context.addComponent("milo-server", miloServer);
 		context.addComponent("milo-client", new MiloClientComponent());
 
 		// add routes
