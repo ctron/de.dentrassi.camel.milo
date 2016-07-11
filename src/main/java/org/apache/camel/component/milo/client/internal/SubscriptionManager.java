@@ -44,7 +44,6 @@ import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
@@ -404,10 +403,6 @@ public class SubscriptionManager {
 		// set endpoint
 
 		cfg.setEndpoint(endpoint);
-
-		if (this.configuration.getApplicationName() != null) {
-			cfg.setApplicationName(LocalizedText.english(this.configuration.getApplicationName()));
-		}
 
 		final OpcUaClient client = new OpcUaClient(cfg.build());
 
