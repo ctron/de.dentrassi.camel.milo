@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo;
+package org.apache.camel.component.milo.client;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -28,15 +28,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class MiloComponent extends UriEndpointComponent {
+public class MiloClientComponent extends UriEndpointComponent {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MiloComponent.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloClientComponent.class);
 
-	private final Map<String, MiloConnection> cache = new HashMap<>();
-	private final Multimap<String, MiloEndpoint> connectionMap = HashMultimap.create();
+	private final Map<String, MiloClientConnection> cache = new HashMap<>();
+	private final Multimap<String, MiloClientEndpoint> connectionMap = HashMultimap.create();
 
-	public MiloComponent() {
-		super(MiloEndpoint.class);
+	public MiloClientComponent() {
+		super(MiloClientEndpoint.class);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class MiloComponent extends UriEndpointComponent {
 
 		final URI itemUri = URI.create(remaining);
 
-		final MiloEndpointConfiguration configuration = MiloEndpointConfiguration.fromUri(itemUri);
+		final MiloClientEndpointConfiguration configuration = MiloClientEndpointConfiguration.fromUri(itemUri);
 
 		if (configuration == null) {
 			return null;
@@ -56,28 +56,28 @@ public class MiloComponent extends UriEndpointComponent {
 		return createEndpoint(uri, itemUri, configuration);
 	}
 
-	private synchronized MiloEndpoint createEndpoint(final String uri, final URI itemUri,
-													 final MiloEndpointConfiguration configuration) {
+	private synchronized MiloClientEndpoint createEndpoint(final String uri, final URI itemUri,
+														   final MiloClientEndpointConfiguration configuration) {
 
-		MiloConnection connection = this.cache.get(configuration.toConnectionCacheId());
+		MiloClientConnection connection = this.cache.get(configuration.toConnectionCacheId());
 
 		if (connection == null) {
 			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toConnectionCacheId());
 
-			connection = new MiloConnection(configuration);
+			connection = new MiloClientConnection(configuration);
 			this.cache.put(configuration.toConnectionCacheId(), connection);
 		}
 
-		final MiloEndpoint endpoint = new MiloEndpoint(uri, itemUri, this, connection, configuration);
+		final MiloClientEndpoint endpoint = new MiloClientEndpoint(uri, itemUri, this, connection, configuration);
 
 		this.connectionMap.put(connection.getConnectionId(), endpoint);
 
 		return endpoint;
 	}
 
-	public synchronized void disposed(final MiloEndpoint endpoint) {
+	public synchronized void disposed(final MiloClientEndpoint endpoint) {
 
-		final MiloConnection connection = endpoint.getConnection();
+		final MiloClientConnection connection = endpoint.getConnection();
 
 		// unregister usage of connection
 

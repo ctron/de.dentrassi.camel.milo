@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo;
+package org.apache.camel.component.milo.client;
 
 import java.net.URI;
 import java.util.Objects;
@@ -27,8 +27,8 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriPath;
 
-@UriEndpoint(scheme = "opcuaclient", syntax = "opcuaclient:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = MiloConsumer.class, label = "iot")
-public class MiloEndpoint extends DefaultEndpoint {
+@UriEndpoint(scheme = "milo-client", syntax = "milo-client:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = MiloClientConsumer.class, label = "iot")
+public class MiloClientEndpoint extends DefaultEndpoint {
 
 	/**
 	 * The main path
@@ -37,12 +37,12 @@ public class MiloEndpoint extends DefaultEndpoint {
 	@Metadata(required = "true")
 	private final String path;
 
-	private final MiloConnection connection;
-	private final MiloComponent component;
-	private final MiloEndpointConfiguration configuration;
+	private final MiloClientConnection connection;
+	private final MiloClientComponent component;
+	private final MiloClientEndpointConfiguration configuration;
 
-	public MiloEndpoint(final String uri, final URI itemUri, final MiloComponent component,
-						final MiloConnection connection, final MiloEndpointConfiguration configuration) {
+	public MiloClientEndpoint(final String uri, final URI itemUri, final MiloClientComponent component,
+							  final MiloClientConnection connection, final MiloClientEndpointConfiguration configuration) {
 		super(uri, component);
 
 		Objects.requireNonNull(component);
@@ -69,12 +69,12 @@ public class MiloEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return new MiloProducer(this, this.connection, this.configuration);
+		return new MiloClientProducer(this, this.connection, this.configuration);
 	}
 
 	@Override
 	public Consumer createConsumer(final Processor processor) throws Exception {
-		return new MiloConsumer(this, processor, this.connection, this.configuration);
+		return new MiloClientConsumer(this, processor, this.connection, this.configuration);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class MiloEndpoint extends DefaultEndpoint {
 		return true;
 	}
 
-	public MiloConnection getConnection() {
+	public MiloClientConnection getConnection() {
 		return this.connection;
 	}
 

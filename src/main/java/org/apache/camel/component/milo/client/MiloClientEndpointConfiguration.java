@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo;
+package org.apache.camel.component.milo.client;
 
 import java.net.URI;
 
-public class MiloEndpointConfiguration implements Cloneable {
+public class MiloClientEndpointConfiguration implements Cloneable {
 
 	private String host;
 
@@ -28,10 +28,10 @@ public class MiloEndpointConfiguration implements Cloneable {
 
 	private String item;
 
-	public MiloEndpointConfiguration() {
+	public MiloClientEndpointConfiguration() {
 	}
 
-	public MiloEndpointConfiguration(final MiloEndpointConfiguration other) {
+	public MiloClientEndpointConfiguration(final MiloClientEndpointConfiguration other) {
 		this.host = other.host;
 		this.port = other.port;
 		this.item = other.item;
@@ -75,17 +75,17 @@ public class MiloEndpointConfiguration implements Cloneable {
 	}
 
 	@Override
-	public MiloEndpointConfiguration clone() {
-		return new MiloEndpointConfiguration(this);
+	public MiloClientEndpointConfiguration clone() {
+		return new MiloClientEndpointConfiguration(this);
 	}
 
-	public static MiloEndpointConfiguration fromUri(final URI uri) {
+	public static MiloClientEndpointConfiguration fromUri(final URI uri) {
 
 		if (!"tcp".equals(uri.getScheme())) {
 			return null;
 		}
 
-		final MiloEndpointConfiguration result = new MiloEndpointConfiguration();
+		final MiloClientEndpointConfiguration result = new MiloClientEndpointConfiguration();
 
 		// connection related
 

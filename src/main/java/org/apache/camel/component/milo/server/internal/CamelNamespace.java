@@ -50,13 +50,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import org.apache.camel.component.milo.MiloConsumer;
+import org.apache.camel.component.milo.client.MiloClientConsumer;
 
 public class CamelNamespace implements Namespace {
 
 	public static final String NAMESPACE_URI = "urn:camel";
 
-	private static final Logger LOG = LoggerFactory.getLogger(MiloConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
 
 	private final UShort namespaceIndex;
 	private final OpcUaServer server;

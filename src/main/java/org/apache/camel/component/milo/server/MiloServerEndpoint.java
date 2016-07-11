@@ -31,7 +31,7 @@ import org.apache.camel.component.milo.server.internal.CamelServerItem;
 /**
  * OPC UA Server based endpoint
  */
-@UriEndpoint(scheme = "opcuaserver", syntax = "opcuaserver:ItemId", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
+@UriEndpoint(scheme = "milo-server", syntax = "milo-server:ItemId", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
 public class MiloServerEndpoint extends DefaultEndpoint {
 
 	@UriPath(label = "Item ID", description = "The ID of the item")

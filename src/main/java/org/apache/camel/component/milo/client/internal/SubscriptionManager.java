@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo.internal;
+package org.apache.camel.component.milo.client.internal;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.ReadValueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.camel.component.milo.MiloEndpointConfiguration;
+import org.apache.camel.component.milo.client.MiloClientEndpointConfiguration;
 
 public class SubscriptionManager {
 
@@ -226,7 +226,7 @@ public class SubscriptionManager {
 		}
 	}
 
-	private final MiloEndpointConfiguration configuration;
+	private final MiloClientEndpointConfiguration configuration;
 	private final Map<UInteger, Subscription> subscriptions = new HashMap<>();
 	private final ScheduledExecutorService executor;
 	private final long reconnectTimeout;
@@ -237,7 +237,7 @@ public class SubscriptionManager {
 
 	private ScheduledFuture<?> reconnectJob;
 
-	public SubscriptionManager(final MiloEndpointConfiguration configuration,
+	public SubscriptionManager(final MiloClientEndpointConfiguration configuration,
 			final ScheduledExecutorService executor, final long reconnectTimeout) {
 		this.configuration = configuration;
 		this.executor = executor;

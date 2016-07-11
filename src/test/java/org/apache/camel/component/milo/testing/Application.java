@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import org.apache.camel.component.milo.MiloComponent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.milo.client.MiloClientComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
@@ -57,8 +57,8 @@ public class Application {
 
 		// add OPC UA
 
-		context.addComponent("opcuaserver", new MiloServerComponent(cfg));
-		context.addComponent("opcuaclient", new MiloComponent());
+		context.addComponent("milo-server", new MiloServerComponent(cfg));
+		context.addComponent("milo-client", new MiloClientComponent());
 
 		// add routes
 
@@ -67,16 +67,16 @@ public class Application {
 			@Override
 			public void configure() throws Exception {
 				from("paho:javaonedemo/eclipse-greenhouse-9home/sensors/temperature?brokerUrl=tcp://iot.eclipse.org:1883")
-						.log("Temp update: ${body}").convertBodyTo(String.class).to("opcuaserver:MyItem");
+						.log("Temp update: ${body}").convertBodyTo(String.class).to("milo-server:MyItem");
 
-				from("opcuaserver:MyItem").log("MyItem: ${body}");
+				from("milo-server:MyItem").log("MyItem: ${body}");
 
-				from("opcuaserver:MyItem2").log("MyItem2 : ${body}")
+				from("milo-server:MyItem2").log("MyItem2 : ${body}")
 						.to("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883");
 
-				from("opcuaclient:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
+				from("milo-client:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
 						.log("From OPC UA: ${body}")
-						.to("opcuaclient:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
+						.to("milo-client:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
 
 				from("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883")
 						.log("Back from MQTT: ${body}");

@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import org.apache.camel.component.milo.MiloComponent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.milo.client.MiloClientComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
@@ -55,7 +55,7 @@ public class Application2Client {
 
 		// add OPC UA
 
-		context.addComponent("opcuaclient", new MiloComponent());
+		context.addComponent("milo-client", new MiloClientComponent());
 
 		// add routes
 
@@ -63,9 +63,9 @@ public class Application2Client {
 
 			@Override
 			public void configure() throws Exception {
-				from("opcuaclient:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
+				from("milo-client:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
 						.log("From OPC UA: ${body}")
-						.to("opcuaclient:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
+						.to("milo-client:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
 			}
 		});
 

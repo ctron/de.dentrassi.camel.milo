@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo;
+package org.apache.camel.component.milo.client;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -24,17 +24,17 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 
-import org.apache.camel.component.milo.internal.SubscriptionManager;
+import org.apache.camel.component.milo.client.internal.SubscriptionManager;
 
-public class MiloConnection implements AutoCloseable {
+public class MiloClientConnection implements AutoCloseable {
 
-	private final MiloEndpointConfiguration configuration;
+	private final MiloClientEndpointConfiguration configuration;
 
 	private SubscriptionManager manager;
 
 	private boolean initialized;
 
-	public MiloConnection(final MiloEndpointConfiguration configuration) {
+	public MiloClientConnection(final MiloClientEndpointConfiguration configuration) {
 		Objects.requireNonNull(configuration);
 
 		// make a copy since the configuration is mutable
@@ -84,7 +84,7 @@ public class MiloConnection implements AutoCloseable {
 
 			@Override
 			public void unregister() {
-				MiloConnection.this.manager.unregisterItem(handle);
+				MiloClientConnection.this.manager.unregisterItem(handle);
 			}
 		};
 	}

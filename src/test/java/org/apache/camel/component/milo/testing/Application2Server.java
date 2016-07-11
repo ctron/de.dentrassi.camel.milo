@@ -56,7 +56,7 @@ public class Application2Server {
 
 		// add OPC UA
 
-		context.addComponent("opcuaserver", new MiloServerComponent(cfg));
+		context.addComponent("milo-server", new MiloServerComponent(cfg));
 
 		// add routes
 
@@ -68,14 +68,14 @@ public class Application2Server {
 				 * from(
 				 * "paho:javaonedemo/eclipse-greenhouse-9home/sensors/temperature?brokerUrl=tcp://iot.eclipse.org:1883")
 				 * .log("Temp update: ${body}").convertBodyTo(String.class).to(
-				 * "opcuaserver:MyItem");
+				 * "milo-server:MyItem");
 				 */
 
 				from("paho:my/foo/bar?brokerUrl=tcp://iot.eclipse.org:1883").log("Temp update: ${body}")
-						.convertBodyTo(String.class).to("opcuaserver:MyItem");
+						.convertBodyTo(String.class).to("milo-server:MyItem");
 
-				from("opcuaserver:MyItem").log("MyItem: ${body}");
-				from("opcuaserver:MyItem2").log("MyItem2: ${body}").convertBodyTo(String.class)
+				from("milo-server:MyItem").log("MyItem: ${body}");
+				from("milo-server:MyItem2").log("MyItem2: ${body}").convertBodyTo(String.class)
 						.to("paho:de/dentrassi/camel/milo/temperature?brokerUrl=tcp://iot.eclipse.org:1883");
 
 				from("paho:de/dentrassi/camel/milo/temperature?brokerUrl=tcp://iot.eclipse.org:1883")

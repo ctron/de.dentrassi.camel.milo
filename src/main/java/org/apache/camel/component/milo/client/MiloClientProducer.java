@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo;
+package org.apache.camel.component.milo.client;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
@@ -23,15 +23,15 @@ import org.apache.camel.impl.DefaultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MiloProducer extends DefaultProducer {
+public class MiloClientProducer extends DefaultProducer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MiloConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
 
-	private final MiloConnection connection;
-	private final MiloEndpointConfiguration configuration;
+	private final MiloClientConnection connection;
+	private final MiloClientEndpointConfiguration configuration;
 
-	public MiloProducer(final Endpoint endpoint, final MiloConnection connection,
-						final MiloEndpointConfiguration configuration) {
+	public MiloClientProducer(final Endpoint endpoint, final MiloClientConnection connection,
+							  final MiloClientEndpointConfiguration configuration) {
 		super(endpoint);
 
 		this.connection = connection;
