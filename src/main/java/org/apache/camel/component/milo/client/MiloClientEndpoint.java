@@ -16,7 +16,6 @@
 
 package org.apache.camel.component.milo.client;
 
-import java.net.URI;
 import java.util.Objects;
 
 import org.apache.camel.Consumer;
@@ -25,35 +24,62 @@ import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
 
-@UriEndpoint(scheme = "milo-client", syntax = "milo-client:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = MiloClientConsumer.class, label = "iot")
-public class MiloClientEndpoint extends DefaultEndpoint {
+@UriEndpoint(scheme = "milo-client", syntax = "milo-client:tcp://user:password@host:port/path/to/service?itemId=item.id&namespaceUri=urn:foo:bar", title = "Milo based OPC UA Client", consumerClass = MiloClientConsumer.class, label = "iot")
+public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientItemConfiguration {
 
 	/**
-	 * The main path
+	 * The OPC UA server endpoint
 	 */
 	@UriPath
 	@Metadata(required = "true")
-	private final String path;
+	private final String endpointUri;
+
+	/**
+	 * The the node ID
+	 */
+	@UriParam
+	@Metadata(required = "true")
+	private String nodeId;
+
+	/**
+	 * The node ID namespace URI
+	 */
+	@UriParam
+	private String namespaceUri;
+
+	/**
+	 * The index of the namespace.
+	 * <p>
+	 * Can be used as an alternative to the {@link #namespaceUri}
+	 * </p>
+	 */
+	@UriParam
+	private Integer namespaceIndex;
+
+	/**
+	 * The sampling interval in milliseconds
+	 */
+	@UriParam
+	private Double samplingInterval;
 
 	private final MiloClientConnection connection;
 	private final MiloClientComponent component;
-	private final MiloClientEndpointConfiguration configuration;
 
-	public MiloClientEndpoint(final String uri, final URI itemUri, final MiloClientComponent component,
-							  final MiloClientConnection connection, final MiloClientEndpointConfiguration configuration) {
+	public MiloClientEndpoint(final String uri, final MiloClientComponent component,
+			final MiloClientConnection connection, final String endpointUri) {
 		super(uri, component);
 
 		Objects.requireNonNull(component);
 		Objects.requireNonNull(connection);
-		Objects.requireNonNull(configuration);
+		Objects.requireNonNull(endpointUri);
 
-		this.path = itemUri.toString();
+		this.endpointUri = endpointUri;
 
 		this.component = component;
 		this.connection = connection;
-		this.configuration = configuration.clone();
 	}
 
 	@Override
@@ -69,12 +95,12 @@ public class MiloClientEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return new MiloClientProducer(this, this.connection, this.configuration);
+		return new MiloClientProducer(this, this.connection, this);
 	}
 
 	@Override
 	public Consumer createConsumer(final Processor processor) throws Exception {
-		return new MiloClientConsumer(this, processor, this.connection, this.configuration);
+		return new MiloClientConsumer(this, processor, this.connection, this);
 	}
 
 	@Override
@@ -86,4 +112,41 @@ public class MiloClientEndpoint extends DefaultEndpoint {
 		return this.connection;
 	}
 
+	// item configuration
+
+	@Override
+	public String getNodeId() {
+		return this.nodeId;
+	}
+
+	public void setNodeId(final String nodeId) {
+		this.nodeId = nodeId;
+	}
+
+	@Override
+	public String getNamespaceUri() {
+		return this.namespaceUri;
+	}
+
+	public void setNamespaceUri(final String namespaceUri) {
+		this.namespaceUri = namespaceUri;
+	}
+
+	@Override
+	public Integer getNamespaceIndex() {
+		return this.namespaceIndex;
+	}
+
+	public void setNamespaceIndex(final int namespaceIndex) {
+		this.namespaceIndex = namespaceIndex;
+	}
+
+	@Override
+	public Double getSamplingInterval() {
+		return this.samplingInterval;
+	}
+
+	public void setSamplingInterval(final Double samplingInterval) {
+		this.samplingInterval = samplingInterval;
+	}
 }

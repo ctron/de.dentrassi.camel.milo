@@ -21,13 +21,13 @@ import java.util.Objects;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.camel.component.milo.Messages;
+import org.apache.camel.component.milo.client.MiloClientConnection.MonitorHandle;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultMessage;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.camel.component.milo.client.MiloClientConnection.MonitorHandle;
 
 public class MiloClientConsumer extends DefaultConsumer {
 
@@ -35,27 +35,26 @@ public class MiloClientConsumer extends DefaultConsumer {
 
 	private final MiloClientConnection connection;
 
-	private final MiloClientEndpointConfiguration configuraton;
+	private final MiloClientItemConfiguration configuration;
 
 	private MonitorHandle handle;
 
 	public MiloClientConsumer(final MiloClientEndpoint endpoint, final Processor processor,
-							  final MiloClientConnection connection, final MiloClientEndpointConfiguration configuration) {
+			final MiloClientConnection connection, final MiloClientItemConfiguration configuration) {
 		super(endpoint, processor);
 
 		Objects.requireNonNull(connection);
 		Objects.requireNonNull(configuration);
 
 		this.connection = connection;
-		this.configuraton = configuration;
+		this.configuration = configuration;
 	}
 
 	@Override
 	protected void doStart() throws Exception {
 		super.doStart();
 
-		this.handle = this.connection.monitorValue(this.configuraton.getNamespaceUri(), this.configuraton.getItem(),
-				this::handleValueUpdate);
+		this.handle = this.connection.monitorValue(this.configuration, this::handleValueUpdate);
 	}
 
 	@Override
@@ -85,12 +84,7 @@ public class MiloClientConsumer extends DefaultConsumer {
 
 		final DefaultMessage result = new DefaultMessage();
 
-		result.setBody(value);
-
-		result.setHeader("opcua.host", this.configuraton.getHost());
-		result.setHeader("opcua.port", this.configuraton.getPort());
-		result.setHeader("opcua.item.id", this.configuraton.getItem());
-		result.setHeader("opcua.item.namespaceUri", this.configuraton.getNamespaceUri());
+		Messages.fillFromDataValue(value, result);
 
 		return result;
 	}

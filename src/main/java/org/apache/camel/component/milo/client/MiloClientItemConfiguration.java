@@ -16,31 +16,12 @@
 
 package org.apache.camel.component.milo.client;
 
-public class MiloClientEndpointConfiguration implements Cloneable {
+public interface MiloClientItemConfiguration {
+	public String getNodeId();
 
-	private String endpointUri;
+	public String getNamespaceUri();
 
-	public MiloClientEndpointConfiguration() {
-	}
+	public Integer getNamespaceIndex();
 
-	public MiloClientEndpointConfiguration(final MiloClientEndpointConfiguration other) {
-		this.endpointUri = other.endpointUri;
-	}
-
-	public void setEndpointUri(final String endpointUri) {
-		this.endpointUri = endpointUri;
-	}
-
-	public String getEndpointUri() {
-		return this.endpointUri;
-	}
-
-	@Override
-	public MiloClientEndpointConfiguration clone() {
-		return new MiloClientEndpointConfiguration(this);
-	}
-
-	public String toCacheId() {
-		return this.endpointUri;
-	}
+	public Double getSamplingInterval();
 }

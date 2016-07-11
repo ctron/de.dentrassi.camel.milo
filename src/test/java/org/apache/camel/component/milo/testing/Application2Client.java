@@ -63,9 +63,9 @@ public class Application2Client {
 
 			@Override
 			public void configure() throws Exception {
-				from("milo-client:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
+				from("milo-client:tcp://localhost:12685?nodeId=items-MyItem&namespaceUri=urn:camel")
 						.log("From OPC UA: ${body}")
-						.to("milo-client:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
+						.to("milo-client:tcp://localhost:12685?nodeId=items-MyItem2&namespaceUri=urn:camel");
 			}
 		});
 

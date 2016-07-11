@@ -19,12 +19,11 @@ package org.apache.camel.component.milo.client;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.apache.camel.component.milo.client.internal.SubscriptionManager;
 import org.eclipse.milo.opcua.stack.core.Stack;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
-
-import org.apache.camel.component.milo.client.internal.SubscriptionManager;
 
 public class MiloClientConnection implements AutoCloseable {
 
@@ -70,15 +69,17 @@ public class MiloClientConnection implements AutoCloseable {
 		public void unregister();
 	}
 
-	public MonitorHandle monitorValue(final String namespaceUri, final String itemId,
+	public MonitorHandle monitorValue(final MiloClientItemConfiguration configuration,
 			final Consumer<DataValue> valueConsumer) {
 
-		Objects.requireNonNull(itemId);
+		Objects.requireNonNull(configuration);
 		Objects.requireNonNull(valueConsumer);
 
 		checkInit();
 
-		final UInteger handle = this.manager.registerItem(namespaceUri, itemId, valueConsumer);
+		final UInteger handle = this.manager.registerItem(configuration.getNamespaceUri(),
+				configuration.getNamespaceIndex(), configuration.getNodeId(), configuration.getSamplingInterval(),
+				valueConsumer);
 
 		return new MonitorHandle() {
 
@@ -90,13 +91,14 @@ public class MiloClientConnection implements AutoCloseable {
 	}
 
 	public String getConnectionId() {
-		return this.configuration.toConnectionCacheId();
+		return this.configuration.getEndpointUri();
 	}
 
-	public void writeValue(final String namespaceUri, final String item, final Object value) {
+	public void writeValue(final String namespaceUri, final Integer namespaceIndex, final String item,
+			final Object value) {
 		checkInit();
 
-		this.manager.write(namespaceUri, item, mapValue(value));
+		this.manager.write(namespaceUri, namespaceIndex, item, mapValue(value));
 	}
 
 	/**

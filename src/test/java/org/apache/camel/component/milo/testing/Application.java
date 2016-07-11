@@ -22,7 +22,7 @@ import java.util.EnumSet;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.milo.client.MiloClientComponent;
+import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
@@ -30,8 +30,6 @@ import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-
-import org.apache.camel.component.milo.server.MiloServerComponent;
 
 public class Application {
 	public static void main(final String[] args) throws Exception {
@@ -58,7 +56,8 @@ public class Application {
 		// add OPC UA
 
 		context.addComponent("milo-server", new MiloServerComponent(cfg));
-		context.addComponent("milo-client", new MiloClientComponent());
+		// no need to register, gets auto detected
+		// context.addComponent("milo-client", new MiloClientComponent());
 
 		// add routes
 
@@ -74,9 +73,9 @@ public class Application {
 				from("milo-server:MyItem2").log("MyItem2 : ${body}")
 						.to("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883");
 
-				from("milo-client:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
+				from("milo-client:tcp://foo:bar@localhost:12685?nodeId=items-MyItem&namespaceUri=urn:camel")
 						.log("From OPC UA: ${body}")
-						.to("milo-client:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
+						.to("milo-client:tcp://localhost:12685?nodeId=items-MyItem2&namespaceUri=urn:camel");
 
 				from("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883")
 						.log("Back from MQTT: ${body}");

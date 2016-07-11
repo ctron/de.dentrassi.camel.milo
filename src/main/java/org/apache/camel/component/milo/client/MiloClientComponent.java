@@ -16,7 +16,6 @@
 
 package org.apache.camel.component.milo.client;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,32 +42,30 @@ public class MiloClientComponent extends UriEndpointComponent {
 	protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
 			throws Exception {
 
-		final URI itemUri = URI.create(remaining);
-
-		final MiloClientEndpointConfiguration configuration = MiloClientEndpointConfiguration.fromUri(itemUri);
-
-		if (configuration == null) {
-			return null;
-		}
-
+		final MiloClientEndpointConfiguration configuration = new MiloClientEndpointConfiguration();
+		configuration.setEndpointUri(remaining);
 		setProperties(configuration, parameters);
 
-		return createEndpoint(uri, itemUri, configuration);
+		return createEndpoint(uri, configuration, parameters);
 	}
 
-	private synchronized MiloClientEndpoint createEndpoint(final String uri, final URI itemUri,
-														   final MiloClientEndpointConfiguration configuration) {
+	private synchronized MiloClientEndpoint createEndpoint(final String uri,
+			final MiloClientEndpointConfiguration configuration, final Map<String, Object> parameters)
+			throws Exception {
 
-		MiloClientConnection connection = this.cache.get(configuration.toConnectionCacheId());
+		MiloClientConnection connection = this.cache.get(configuration.toCacheId());
 
 		if (connection == null) {
-			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toConnectionCacheId());
+			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toCacheId());
 
 			connection = new MiloClientConnection(configuration);
-			this.cache.put(configuration.toConnectionCacheId(), connection);
+			this.cache.put(configuration.toCacheId(), connection);
 		}
 
-		final MiloClientEndpoint endpoint = new MiloClientEndpoint(uri, itemUri, this, connection, configuration);
+		final MiloClientEndpoint endpoint = new MiloClientEndpoint(uri, this, connection,
+				configuration.getEndpointUri());
+
+		setProperties(configuration, parameters);
 
 		this.connectionMap.put(connection.getConnectionId(), endpoint);
 

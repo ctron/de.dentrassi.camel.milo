@@ -1,33 +1,64 @@
-[[MiloClient-OpcUaClientComponent]]
+[[MiloClient-MiloClientComponent]]
 
-OPC UA Client Component
+Milo Client Component
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+*Available as of Camel 2.18*
+
+The *Milo Client* component provides access to OPC UA servers using the
+http://eclipse.org/milo[Eclipse Milo™] implementation.
+
+*Java 8* This component requires Java 8 at runtime. 
+
+Maven users will need to add the following dependency to their `pom.xml`
+for this component:
+
+[source,xml]
+------------------------------------------------------------
+<dependency>
+    <groupId>de.dentrassi.camel</groupId>
+    <artifactId>de.dentrassi.camel.milo</artifactId>
+    <version><!-- your Apache Camel version--></version>
+</dependency>
+------------------------------------------------------------
+
+// component options: START
+The Milo based OPC UA Client component has no options.
+// component options: END
 
 [[MiloClient-URIformat]]
 URI format
 ^^^^^^^^^^
 
-[source,java]
+The URI syntax of the endpoint is: 
+
+[source]
 ------------------------
-opcuaclient:tcp://host:port:/ItemId?namespaceUri=urn:foo:bar[?options]
+opcuaclient:tcp://host:port/path/to/service?itemId=item-id&namespaceUri=urn:foo:bar
+------------------------
+
+If the server does not use a path, then it is possible to simply omit it:
+
+------------------------
+opcuaclient:tcp://host:port?itemId=item-id&namespaceUri=urn:foo:bar
 ------------------------
 
 [[MiloClient-URIOptions]]
 URI options
 ^^^^^^^^^^^
 
-
-
-
 // endpoint options: START
-The OPC UA Client component supports 5 endpoint options which are listed below:
+The Milo based OPC UA Client component supports 9 endpoint options which are listed below:
 
 {% raw %}
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
 | Name | Group | Default | Java Type | Description
-| path | common |  | String | *Required* The main path
+| endpointUri | common |  | String | *Required* The OPC UA server endpoint
+| namespaceIndex | common |  | Integer | The index of the namespace. Can be used as an alternative to the link namespaceUri
+| namespaceUri | common |  | String | The node ID namespace URI
+| nodeId | common |  | String | *Required* The the node ID
+| samplingInterval | common |  | Double | The sampling interval in milliseconds
 | bridgeErrorHandler | consumer | false | boolean | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
@@ -35,6 +66,10 @@ The OPC UA Client component supports 5 endpoint options which are listed below:
 |=======================================================================
 {% endraw %}
 // endpoint options: END
+
+
+
+
 
 
 

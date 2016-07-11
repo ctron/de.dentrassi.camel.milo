@@ -21,11 +21,11 @@ import java.util.function.Consumer;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.component.milo.Messages;
+import org.apache.camel.component.milo.server.internal.CamelServerItem;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultMessage;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-
-import org.apache.camel.component.milo.server.internal.CamelServerItem;
 
 public class MiloServerConsumer extends DefaultConsumer {
 
@@ -70,13 +70,9 @@ public class MiloServerConsumer extends DefaultConsumer {
 
 		final DefaultMessage result = new DefaultMessage();
 
-		result.setBody(value);
-		result.setHeader("variantValue", value.getValue().getValue());
-		result.setHeader("statusCode", value.getStatusCode().getValue());
-		result.setHeader("serverTime", value.getServerTime().getJavaDate());
-		result.setHeader("sourceTime", value.getSourceTime().getJavaDate());
-		result.setFault(value.getStatusCode().isBad());
+		Messages.fillFromDataValue(value, result);
 
 		return result;
 	}
+
 }

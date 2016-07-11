@@ -28,10 +28,11 @@ public class MiloClientProducer extends DefaultProducer {
 	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
 
 	private final MiloClientConnection connection;
-	private final MiloClientEndpointConfiguration configuration;
+
+	private final MiloClientItemConfiguration configuration;
 
 	public MiloClientProducer(final Endpoint endpoint, final MiloClientConnection connection,
-							  final MiloClientEndpointConfiguration configuration) {
+			final MiloClientItemConfiguration configuration) {
 		super(endpoint);
 
 		this.connection = connection;
@@ -45,7 +46,8 @@ public class MiloClientProducer extends DefaultProducer {
 
 		LOG.debug("Processing message: {}", value);
 
-		this.connection.writeValue(this.configuration.getNamespaceUri(), this.configuration.getItem(), value);
+		this.connection.writeValue(this.configuration.getNamespaceUri(), this.configuration.getNamespaceIndex(),
+				this.configuration.getNodeId(), value);
 	}
 
 }

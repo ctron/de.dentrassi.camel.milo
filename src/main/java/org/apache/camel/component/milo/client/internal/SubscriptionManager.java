@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -29,9 +30,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
+import org.apache.camel.component.milo.client.MiloClientEndpointConfiguration;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.CompositeProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.stack.client.UaTcpStackClient;
@@ -53,8 +58,6 @@ import org.eclipse.milo.opcua.stack.core.types.structured.ReadValueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.camel.component.milo.client.MiloClientEndpointConfiguration;
-
 public class SubscriptionManager {
 
 	private final static Logger LOG = LoggerFactory.getLogger(SubscriptionManager.class);
@@ -67,12 +70,18 @@ public class SubscriptionManager {
 
 	private static class Subscription {
 		private final String namespaceUri;
+		private final Integer namespaceIndex;
 		private final String itemId;
+		private final Double samplingInterval;
+
 		private final Consumer<DataValue> valueConsumer;
 
-		public Subscription(final String namespaceUri, final String itemId, final Consumer<DataValue> valueConsumer) {
+		public Subscription(final String namespaceUri, final Integer namespaceIndex, final String itemId,
+				final Double samplingInterval, final Consumer<DataValue> valueConsumer) {
 			this.namespaceUri = namespaceUri;
+			this.namespaceIndex = namespaceIndex;
 			this.itemId = itemId;
+			this.samplingInterval = samplingInterval;
 			this.valueConsumer = valueConsumer;
 		}
 
@@ -80,8 +89,16 @@ public class SubscriptionManager {
 			return this.namespaceUri;
 		}
 
+		public Integer getNamespaceIndex() {
+			return this.namespaceIndex;
+		}
+
 		public String getItemId() {
 			return this.itemId;
+		}
+
+		public Double getSamplingInterval() {
+			return this.samplingInterval;
 		}
 
 		public Consumer<DataValue> getValueConsumer() {
@@ -115,13 +132,18 @@ public class SubscriptionManager {
 			for (final Map.Entry<UInteger, Subscription> entry : subscriptions.entrySet()) {
 				final Subscription s = entry.getValue();
 
-				final UShort namespaceIndex = lookupNamespace(s.getNamespaceUri());
+				final UShort namespaceIndex;
+				if (s.getNamespaceIndex() != null) {
+					namespaceIndex = Unsigned.ushort(s.getNamespaceIndex());
+				} else {
+					namespaceIndex = lookupNamespace(s.getNamespaceUri());
+				}
 
 				final NodeId nodeId = new NodeId(namespaceIndex, s.getItemId());
 				final ReadValueId itemId = new ReadValueId(nodeId, AttributeId.Value.uid(), null,
 						QualifiedName.NULL_VALUE);
-				final MonitoringParameters parameters = new MonitoringParameters(entry.getKey(), null, null, null,
-						null);
+				final MonitoringParameters parameters = new MonitoringParameters(entry.getKey(),
+						s.getSamplingInterval(), null, null, null);
 				items.add(new MonitoredItemCreateRequest(itemId, MonitoringMode.Reporting, parameters));
 			}
 
@@ -208,15 +230,23 @@ public class SubscriptionManager {
 			}
 		}
 
-		public CompletableFuture<StatusCode> write(final String namespaceUri, final String item,
-				final DataValue value) {
+		public CompletableFuture<StatusCode> write(final String namespaceUri, final Integer namespaceIndex,
+				final String item, final DataValue value) {
 
-			final CompletableFuture<UShort> future = lookupNamespaceIndex(namespaceUri);
-			return future.thenCompose(namespaceIndex -> {
+			final CompletableFuture<UShort> future;
 
-				return this.client.writeValue(new NodeId(namespaceIndex, item), value).whenComplete((status, error) -> {
+			if (namespaceIndex != null) {
+				future = CompletableFuture.completedFuture(Unsigned.ushort(namespaceIndex));
+			} else {
+				LOG.debug("Looking up namespace: {}", namespaceUri);
+				future = lookupNamespaceIndex(namespaceUri);
+			}
+
+			return future.thenCompose(index -> {
+
+				return this.client.writeValue(new NodeId(index, item), value).whenComplete((status, error) -> {
 					if (status != null) {
-						LOG.debug("Write to ns={}, id={} = {} -> {}", namespaceUri, item, value, status);
+						LOG.debug("Write to ns={}/{}, id={} = {} -> {}", namespaceUri, index, item, value, status);
 					} else {
 						LOG.debug("Failed to write", error);
 					}
@@ -331,15 +361,31 @@ public class SubscriptionManager {
 	}
 
 	private Connected performConnect() throws Exception {
-		final URI uri = new URI("opc.tcp", null, this.configuration.getHost(), this.configuration.getPort(), null, null,
-				null);
-
-		final EndpointDescription endpoint = UaTcpStackClient.getEndpoints(uri.toString())
+		final EndpointDescription endpoint = UaTcpStackClient.getEndpoints(this.configuration.getEndpointUri())
 				.thenApply(endpoints -> endpoints[0]).get();
 
 		final OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
 
-		cfg.setIdentityProvider(new AnonymousProvider());
+		final URI uri = URI.create(this.configuration.getEndpointUri());
+
+		// set identity providers
+
+		final List<IdentityProvider> providers = new LinkedList<>();
+
+		final String user = uri.getUserInfo();
+		if (user != null && !user.isEmpty()) {
+			final String[] creds = user.split(":", 2);
+			if (creds != null && creds.length == 2) {
+				LOG.debug("Enable username/password provider: {}", creds[0]);
+			}
+			providers.add(new UsernameProvider(creds[0], creds[1]));
+		}
+
+		providers.add(new AnonymousProvider());
+		cfg.setIdentityProvider(new CompositeProvider(providers));
+
+		// set endpoint
+
 		cfg.setEndpoint(endpoint);
 
 		final OpcUaClient client = new OpcUaClient(cfg.build());
@@ -368,11 +414,12 @@ public class SubscriptionManager {
 		}
 	}
 
-	public UInteger registerItem(final String namespaceUri, final String itemId,
-			final Consumer<DataValue> valueConsumer) {
+	public UInteger registerItem(final String namespaceUri, final Integer namespaceIndex, final String itemId,
+			final Double samplingInterval, final Consumer<DataValue> valueConsumer) {
 
 		final UInteger clientHandle = Unsigned.uint(this.clientHandleCounter.incrementAndGet());
-		final Subscription subscription = new Subscription(namespaceUri, itemId, valueConsumer);
+		final Subscription subscription = new Subscription(namespaceUri, namespaceIndex, itemId, samplingInterval,
+				valueConsumer);
 
 		synchronized (this) {
 			this.subscriptions.put(clientHandle, subscription);
@@ -393,11 +440,12 @@ public class SubscriptionManager {
 		}
 	}
 
-	public synchronized void write(final String namespaceUri, final String item, final DataValue value) {
+	public synchronized void write(final String namespaceUri, final Integer namespaceIndex, final String item,
+			final DataValue value) {
 		// schedule operation
 
 		if (this.connected != null) {
-			this.connected.write(namespaceUri, item, value).handleAsync((status, e) -> {
+			this.connected.write(namespaceUri, namespaceIndex, item, value).handleAsync((status, e) -> {
 				// handle outside the lock, running using handleAsync
 				if (e != null) {
 					handleConnectionFailue(e);
