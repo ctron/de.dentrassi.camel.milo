@@ -18,12 +18,16 @@ package org.apache.camel.component.milo.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.UriEndpointComponent;
+import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -42,7 +46,7 @@ public class MiloClientComponent extends UriEndpointComponent {
 	protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
 			throws Exception {
 
-		final MiloClientEndpointConfiguration configuration = new MiloClientEndpointConfiguration();
+		final MiloClientConfiguration configuration = new MiloClientConfiguration();
 		configuration.setEndpointUri(remaining);
 		setProperties(configuration, parameters);
 
@@ -50,26 +54,45 @@ public class MiloClientComponent extends UriEndpointComponent {
 	}
 
 	private synchronized MiloClientEndpoint createEndpoint(final String uri,
-			final MiloClientEndpointConfiguration configuration, final Map<String, Object> parameters)
-			throws Exception {
+			final MiloClientConfiguration configuration, final Map<String, Object> parameters) throws Exception {
 
 		MiloClientConnection connection = this.cache.get(configuration.toCacheId());
 
 		if (connection == null) {
 			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toCacheId());
 
-			connection = new MiloClientConnection(configuration);
+			connection = new MiloClientConnection(configuration, mapToClientConfiguration(configuration));
 			this.cache.put(configuration.toCacheId(), connection);
 		}
 
 		final MiloClientEndpoint endpoint = new MiloClientEndpoint(uri, this, connection,
 				configuration.getEndpointUri());
 
-		setProperties(configuration, parameters);
+		setProperties(endpoint, parameters);
 
-		this.connectionMap.put(connection.getConnectionId(), endpoint);
+		// register connection with endpoint
+
+		this.connectionMap.put(configuration.toCacheId(), endpoint);
 
 		return endpoint;
+	}
+
+	private OpcUaClientConfigBuilder mapToClientConfiguration(final MiloClientConfiguration configuration) {
+		final OpcUaClientConfigBuilder builder = new OpcUaClientConfigBuilder();
+
+		whenHasText(configuration::getApplicationName,
+				value -> builder.setApplicationName(LocalizedText.english(value)));
+		whenHasText(configuration::getApplicationUri, builder::setApplicationUri);
+		whenHasText(configuration::getProductUri, builder::setProductUri);
+
+		return builder;
+	}
+
+	private void whenHasText(final Supplier<String> valueSupplier, final Consumer<String> valueConsumer) {
+		final String value = valueSupplier.get();
+		if (value != null && !value.isEmpty()) {
+			valueConsumer.accept(value);
+		}
 	}
 
 	public synchronized void disposed(final MiloClientEndpoint endpoint) {

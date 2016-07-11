@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import org.apache.camel.component.milo.client.MiloClientEndpointConfiguration;
+import org.apache.camel.component.milo.client.MiloClientConfiguration;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
@@ -43,6 +43,7 @@ import org.eclipse.milo.opcua.stack.client.UaTcpStackClient;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
@@ -256,20 +257,22 @@ public class SubscriptionManager {
 		}
 	}
 
-	private final MiloClientEndpointConfiguration configuration;
-	private final Map<UInteger, Subscription> subscriptions = new HashMap<>();
+	private final MiloClientConfiguration configuration;
+	private final OpcUaClientConfigBuilder clientBuilder;
 	private final ScheduledExecutorService executor;
 	private final long reconnectTimeout;
 
 	private Connected connected;
-
 	private boolean disposed;
-
 	private ScheduledFuture<?> reconnectJob;
+	private final Map<UInteger, Subscription> subscriptions = new HashMap<>();
 
-	public SubscriptionManager(final MiloClientEndpointConfiguration configuration,
-			final ScheduledExecutorService executor, final long reconnectTimeout) {
+	public SubscriptionManager(final MiloClientConfiguration configuration,
+			final OpcUaClientConfigBuilder clientBuilder, final ScheduledExecutorService executor,
+			final long reconnectTimeout) {
+
 		this.configuration = configuration;
+		this.clientBuilder = clientBuilder;
 		this.executor = executor;
 		this.reconnectTimeout = reconnectTimeout;
 
@@ -364,8 +367,6 @@ public class SubscriptionManager {
 		final EndpointDescription endpoint = UaTcpStackClient.getEndpoints(this.configuration.getEndpointUri())
 				.thenApply(endpoints -> endpoints[0]).get();
 
-		final OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
-
 		final URI uri = URI.create(this.configuration.getEndpointUri());
 
 		// set identity providers
@@ -381,12 +382,19 @@ public class SubscriptionManager {
 			providers.add(new UsernameProvider(creds[0], creds[1]));
 		}
 
+		// FIXME: need a way to clone
+		final OpcUaClientConfigBuilder cfg = this.clientBuilder;
+
 		providers.add(new AnonymousProvider());
 		cfg.setIdentityProvider(new CompositeProvider(providers));
 
 		// set endpoint
 
 		cfg.setEndpoint(endpoint);
+
+		if (this.configuration.getApplicationName() != null) {
+			cfg.setApplicationName(LocalizedText.english(this.configuration.getApplicationName()));
+		}
 
 		final OpcUaClient client = new OpcUaClient(cfg.build());
 

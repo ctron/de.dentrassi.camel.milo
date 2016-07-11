@@ -47,7 +47,6 @@ opcuaclient:tcp://host:port?itemId=item-id&namespaceUri=urn:foo:bar
 URI options
 ^^^^^^^^^^^
 
-
 // endpoint options: START
 The Milo based OPC UA Client component supports 9 endpoint options which are listed below:
 
@@ -69,7 +68,19 @@ The Milo based OPC UA Client component supports 9 endpoint options which are lis
 // endpoint options: END
 
 
-Exactly one of the parameters `namespaceUri` or `namespaceIndex` is required. It is preferred to use the URI over the index. If both are specified the index takes precedence. It is an error to specify neither.  
+Exactly one of the parameters `namespaceUri` or `namespaceIndex` is required. It is preferred to use the URI over the index. If both are specified the index takes precedence. It is an error to specify neither.
+
+The following URI options are supported by a are only available on the component level:
+
+{% raw %}
+[width="100%",cols="2s,1,1m,1m,5",options="header"]
+|=======================================================================
+| Name | Group | Default | Java Type | Description
+| applicationName | client | Apache Camel adapter for Eclipse Milo | String | The name of the application
+| applicationUri | client | http://camel.apache.org/EclipseMilo | String | The application URI
+| productUri | client | http://camel.apache.org/EclipseMilo | String | The product URI
+|=======================================================================
+{% endraw %}  
 
 [[MiloClient-SeeAlso]]
 See Also

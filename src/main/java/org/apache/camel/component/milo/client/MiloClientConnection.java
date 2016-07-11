@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.apache.camel.component.milo.client.internal.SubscriptionManager;
+import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.stack.core.Stack;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -27,21 +28,26 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 
 public class MiloClientConnection implements AutoCloseable {
 
-	private final MiloClientEndpointConfiguration configuration;
+	private final MiloClientConfiguration configuration;
 
 	private SubscriptionManager manager;
 
 	private boolean initialized;
 
-	public MiloClientConnection(final MiloClientEndpointConfiguration configuration) {
+	private final OpcUaClientConfigBuilder clientConfiguration;
+
+	public MiloClientConnection(final MiloClientConfiguration configuration,
+			final OpcUaClientConfigBuilder clientConfiguration) {
 		Objects.requireNonNull(configuration);
 
 		// make a copy since the configuration is mutable
 		this.configuration = configuration.clone();
+		this.clientConfiguration = clientConfiguration;
 	}
 
 	protected void init() throws Exception {
-		this.manager = new SubscriptionManager(this.configuration, Stack.sharedScheduledExecutor(), 10_000);
+		this.manager = new SubscriptionManager(this.configuration, this.clientConfiguration,
+				Stack.sharedScheduledExecutor(), 10_000);
 	}
 
 	@Override
@@ -91,7 +97,7 @@ public class MiloClientConnection implements AutoCloseable {
 	}
 
 	public String getConnectionId() {
-		return this.configuration.getEndpointUri();
+		return this.configuration.toCacheId();
 	}
 
 	public void writeValue(final String namespaceUri, final Integer namespaceIndex, final String item,
