@@ -42,7 +42,7 @@
 		<!-- we do require java 8 -->
 		<jdk.version>1.8</jdk.version>
 		
-		<camel.osgi.export.pkg>de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
+		<camel.osgi.export.pkg>!*.internal.*,de.dentrassi.camel.milo.*</camel.osgi.export.pkg>
 		<camel.osgi.export.service>
 			org.apache.camel.spi.ComponentResolver;component=opcuaserver,
 			org.apache.camel.spi.ComponentResolver;component=opcuaclient
