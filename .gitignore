@@ -1,2 +1,6 @@
 /target/
 /certs/
+
+# IntelliJ
+.idea/
+*.iml
