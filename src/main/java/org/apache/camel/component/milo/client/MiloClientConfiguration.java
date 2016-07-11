@@ -16,23 +16,14 @@
 
 package org.apache.camel.component.milo.client;
 
-import org.apache.camel.spi.UriParam;
-import org.apache.camel.spi.UriParams;
-import org.apache.camel.spi.UriPath;
-
-@UriParams
 public class MiloClientConfiguration implements Cloneable {
 
-	@UriPath
 	private String endpointUri;
 
-	@UriParam(description = "The application name", label = "client")
 	private String applicationName = "Apache Camel adapter for Eclipse Milo";
 
-	@UriParam(description = "The application URI", label = "client")
 	private String applicationUri = "http://camel.apache.org/EclipseMilo";
 
-	@UriParam(description = "The product URI", label = "client")
 	private String productUri = "http://camel.apache.org/EclipseMilo";
 
 	public MiloClientConfiguration() {

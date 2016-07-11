@@ -16,20 +16,9 @@
 
 package org.apache.camel.component.milo.testing;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.EnumSet;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
-import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
-import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
-import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
-import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
-import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
 public class Application {
 	public static void main(final String[] args) throws Exception {
@@ -43,23 +32,8 @@ public class Application {
 		// no need to register, gets auto detected
 		// context.addComponent("paho", new PahoComponent());
 
-		// OPC UA configuration
-
-		final OpcUaServerConfigBuilder cfg = OpcUaServerConfig.builder();
-		cfg.setCertificateManager(new DefaultCertificateManager());
-		cfg.setCertificateValidator(new DefaultCertificateValidator(new File("certs")));
-		cfg.setSecurityPolicies(EnumSet.of(SecurityPolicy.None));
-		cfg.setIdentityValidator(new UsernameIdentityValidator(true, auth -> true));
-		cfg.setUserTokenPolicies(Arrays.asList(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS,
-				OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME));
-
-		// add OPC UA
-
-		final MiloServerComponent miloServer = new MiloServerComponent();
-		miloServer.setServerConfig(cfg.build());
-		context.addComponent("milo-server", miloServer);
-
 		// no need to register, gets auto detected
+		// context.addComponent("milo-server", new MiloClientComponent());
 		// context.addComponent("milo-client", new MiloClientComponent());
 
 		// add routes

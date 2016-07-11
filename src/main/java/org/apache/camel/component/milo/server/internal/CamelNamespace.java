@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.camel.component.milo.client.MiloClientConsumer;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.DataItem;
@@ -50,11 +51,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import org.apache.camel.component.milo.client.MiloClientConsumer;
-
 public class CamelNamespace implements Namespace {
 
-	public static final String NAMESPACE_URI = "urn:camel";
+	public static final String NAMESPACE_URI = "urn:org:apache:camel";
 
 	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
 

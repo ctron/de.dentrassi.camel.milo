@@ -18,7 +18,6 @@ package org.apache.camel.component.milo.testing;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.milo.client.MiloClientComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 public class Application2Client {
@@ -35,17 +34,15 @@ public class Application2Client {
 
 		// add OPC UA
 
-		context.addComponent("milo-client", new MiloClientComponent());
-
 		// add routes
 
 		context.addRoutes(new RouteBuilder() {
 
 			@Override
 			public void configure() throws Exception {
-				from("milo-client:tcp://localhost:12685?nodeId=items-MyItem&namespaceUri=urn:camel")
+				from("milo-client:tcp://localhost:12685?nodeId=items-MyItem&namespaceUri=urn:org:apache:camel")
 						.log("From OPC UA: ${body}")
-						.to("milo-client:tcp://localhost:12685?nodeId=items-MyItem2&namespaceUri=urn:camel");
+						.to("milo-client:tcp://localhost:12685?nodeId=items-MyItem2&namespaceUri=urn:org:apache:camel");
 			}
 		});
 

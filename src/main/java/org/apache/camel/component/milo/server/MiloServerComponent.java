@@ -16,7 +16,11 @@
 
 package org.apache.camel.component.milo.server;
 
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Endpoint;
@@ -24,13 +28,49 @@ import org.apache.camel.component.milo.server.internal.CamelNamespace;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
+import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
+import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
+import org.eclipse.milo.opcua.stack.core.StatusCodes;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
+import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
 /**
  * OPC UA Server based component
  */
 public class MiloServerComponent extends UriEndpointComponent {
 
-	private OpcUaServerConfig serverConfig;
+	private static final OpcUaServerConfig DEFAULT_SERVER_CONFIG;
+	static {
+		final OpcUaServerConfigBuilder cfg = OpcUaServerConfig.builder();
+
+		cfg.setCertificateManager(new DefaultCertificateManager());
+		cfg.setCertificateValidator(new CertificateValidator() {
+
+			@Override
+			public void validate(final X509Certificate certificate) throws UaException {
+				throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
+			}
+
+			@Override
+			public void verifyTrustChain(final X509Certificate certificate, final List<X509Certificate> chain)
+					throws UaException {
+				throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
+			}
+
+		});
+		cfg.setSecurityPolicies(EnumSet.of(SecurityPolicy.None));
+		cfg.setIdentityValidator(new AnonymousIdentityValidator());
+
+		cfg.setUserTokenPolicies(Arrays.asList(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS));
+
+		DEFAULT_SERVER_CONFIG = cfg.build();
+	}
+
+	private String namespaceUri = CamelNamespace.NAMESPACE_URI;
+
+	private final OpcUaServerConfig serverConfig;
 
 	private OpcUaServer server;
 	private CamelNamespace namespace;
@@ -38,14 +78,19 @@ public class MiloServerComponent extends UriEndpointComponent {
 	private final Map<String, MiloServerEndpoint> endpoints = new HashMap<>();
 
 	public MiloServerComponent() {
+		this(DEFAULT_SERVER_CONFIG);
+	}
+
+	public MiloServerComponent(final OpcUaServerConfig serverConfig) {
 		super(MiloServerEndpoint.class);
+		this.serverConfig = serverConfig;
 	}
 
 	@Override
 	protected void doStart() throws Exception {
 		this.server = new OpcUaServer(this.serverConfig);
 
-		this.namespace = this.server.getNamespaceManager().registerAndAdd(CamelNamespace.NAMESPACE_URI,
+		this.namespace = this.server.getNamespaceManager().registerAndAdd(this.namespaceUri,
 				ctx -> new CamelNamespace(ctx, this.server));
 
 		super.doStart();
@@ -78,12 +123,11 @@ public class MiloServerComponent extends UriEndpointComponent {
 		}
 	}
 
-	public OpcUaServerConfig getServerConfig() {
-		return this.serverConfig;
-	}
-
-	public void setServerConfig(final OpcUaServerConfig serverConfig) {
-		this.serverConfig = serverConfig;
+	/**
+	 * Set the namespace URI, defaults to <code>urn:org:apache:camel</code>
+	 */
+	public void setNamespaceUri(final String namespaceUri) {
+		this.namespaceUri = namespaceUri;
 	}
 
 }

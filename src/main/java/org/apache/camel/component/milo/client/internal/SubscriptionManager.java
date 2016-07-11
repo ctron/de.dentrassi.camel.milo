@@ -42,6 +42,7 @@ import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.stack.client.UaTcpStackClient;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
+import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
@@ -140,32 +141,38 @@ public class SubscriptionManager {
 					namespaceIndex = lookupNamespace(s.getNamespaceUri());
 				}
 
-				final NodeId nodeId = new NodeId(namespaceIndex, s.getItemId());
-				final ReadValueId itemId = new ReadValueId(nodeId, AttributeId.Value.uid(), null,
-						QualifiedName.NULL_VALUE);
-				final MonitoringParameters parameters = new MonitoringParameters(entry.getKey(),
-						s.getSamplingInterval(), null, null, null);
-				items.add(new MonitoredItemCreateRequest(itemId, MonitoringMode.Reporting, parameters));
+				if (namespaceIndex == null) {
+					handleSubscriptionError(new StatusCode(StatusCodes.Bad_InvalidArgument), entry.getKey(), s);
+				} else {
+					final NodeId nodeId = new NodeId(namespaceIndex, s.getItemId());
+					final ReadValueId itemId = new ReadValueId(nodeId, AttributeId.Value.uid(), null,
+							QualifiedName.NULL_VALUE);
+					final MonitoringParameters parameters = new MonitoringParameters(entry.getKey(),
+							s.getSamplingInterval(), null, null, null);
+					items.add(new MonitoredItemCreateRequest(itemId, MonitoringMode.Reporting, parameters));
+				}
 			}
 
-			// create monitors
+			if (!items.isEmpty()) {
 
-			final List<UaMonitoredItem> result = this.manager.createMonitoredItems(TimestampsToReturn.Both, items)
-					.get();
+				// create monitors
 
-			// set value listeners
+				final List<UaMonitoredItem> result = this.manager.createMonitoredItems(TimestampsToReturn.Both, items)
+						.get();
 
-			// FIXME: use atomic API when available
+				// set value listeners
 
-			for (final UaMonitoredItem item : result) {
-				final Subscription s = subscriptions.get(item.getClientHandle());
+				// FIXME: use atomic API when available
 
-				if (item.getStatusCode().isBad()) {
-					this.badSubscriptions.put(item.getClientHandle(), s);
-					s.getValueConsumer().accept(new DataValue(item.getStatusCode()));
-				} else {
-					this.goodSubscriptions.put(item.getClientHandle(), item);
-					item.setValueConsumer(s.getValueConsumer());
+				for (final UaMonitoredItem item : result) {
+					final Subscription s = subscriptions.get(item.getClientHandle());
+
+					if (item.getStatusCode().isBad()) {
+						handleSubscriptionError(item.getStatusCode(), item.getClientHandle(), s);
+					} else {
+						this.goodSubscriptions.put(item.getClientHandle(), item);
+						item.setValueConsumer(s.getValueConsumer());
+					}
 				}
 			}
 
@@ -173,6 +180,12 @@ public class SubscriptionManager {
 				SubscriptionManager.this.executor.schedule(this::resubscribe, SubscriptionManager.this.reconnectTimeout,
 						TimeUnit.MILLISECONDS);
 			}
+		}
+
+		private void handleSubscriptionError(final StatusCode statusCode, final UInteger clientHandle,
+				final Subscription s) {
+			this.badSubscriptions.put(clientHandle, s);
+			s.getValueConsumer().accept(new DataValue(statusCode));
 		}
 
 		private void resubscribe() {

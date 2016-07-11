@@ -4,9 +4,23 @@ OPC UA Server Component
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+
+
 // component options: START
-The OPC UA Server component has no options.
+The OPC UA Server component supports 1 options which are listed below.
+
+
+
+{% raw %}
+[width="100%",cols="2s,1m,8",options="header"]
+|=======================================================================
+| Name | Java Type | Description
+| namespaceUri | String | Set the namespace URI defaults to urn:org:apache:camel
+|=======================================================================
+{% endraw %}
 // component options: END
+
+
 
 
 [[MiloServer-URIformat]]
@@ -21,8 +35,6 @@ opcuaserver:ItemId[?options]
 [[Milo-URIOptions]]
 URI options
 ^^^^^^^^^^^
-
-
 
 // endpoint options: START
 The OPC UA Server component supports 5 endpoint options which are listed below:
