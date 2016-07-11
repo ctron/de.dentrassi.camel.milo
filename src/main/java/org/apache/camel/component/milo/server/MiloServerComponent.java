@@ -22,6 +22,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.milo.server.internal.CamelNamespace;
@@ -35,6 +36,7 @@ import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 
 /**
  * OPC UA Server based component
@@ -70,7 +72,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 	private String namespaceUri = CamelNamespace.NAMESPACE_URI;
 
-	private final OpcUaServerConfig serverConfig;
+	private final OpcUaServerConfigBuilder serverConfig;
 
 	private OpcUaServer server;
 	private CamelNamespace namespace;
@@ -83,12 +85,12 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 	public MiloServerComponent(final OpcUaServerConfig serverConfig) {
 		super(MiloServerEndpoint.class);
-		this.serverConfig = serverConfig;
+		this.serverConfig = new OpcUaServerConfigBuilder(serverConfig != null ? serverConfig : DEFAULT_SERVER_CONFIG);
 	}
 
 	@Override
 	protected void doStart() throws Exception {
-		this.server = new OpcUaServer(this.serverConfig);
+		this.server = new OpcUaServer(this.serverConfig.build());
 
 		this.namespace = this.server.getNamespaceManager().registerAndAdd(this.namespaceUri,
 				ctx -> new CamelNamespace(ctx, this.server));
@@ -124,10 +126,54 @@ public class MiloServerComponent extends UriEndpointComponent {
 	}
 
 	/**
-	 * Set the namespace URI, defaults to <code>urn:org:apache:camel</code>
+	 * The URI of the namespace, defaults to <code>urn:org:apache:camel</code>
 	 */
 	public void setNamespaceUri(final String namespaceUri) {
 		this.namespaceUri = namespaceUri;
 	}
 
+	/**
+	 * The application name
+	 */
+	public void setApplicationName(final String applicationName) {
+		Objects.requireNonNull(applicationName);
+		this.serverConfig.setApplicationName(LocalizedText.english(applicationName));
+	}
+
+	/**
+	 * The application URI
+	 */
+	public void setApplicationUri(final String applicationUri) {
+		Objects.requireNonNull(applicationUri);
+		this.serverConfig.setApplicationUri(applicationUri);
+	}
+
+	/**
+	 * The product URI
+	 */
+	public void setProductUri(final String productUri) {
+		Objects.requireNonNull(productUri);
+		this.serverConfig.setProductUri(productUri);
+	}
+
+	/**
+	 * The TCP port the server binds to
+	 */
+	public void setBindPort(final int port) {
+		this.serverConfig.setBindPort(port);
+	}
+
+	/**
+	 * Set whether strict endpoint URLs are enforced
+	 */
+	public void setStrictEndpointUrlsEnabled(final boolean strictEndpointUrlsEnforced) {
+		this.serverConfig.setStrictEndpointUrlsEnabled(strictEndpointUrlsEnforced);
+	}
+
+	/**
+	 * Server name
+	 */
+	public void setServerName(final String serverName) {
+		this.serverConfig.setServerName(serverName);
+	}
 }

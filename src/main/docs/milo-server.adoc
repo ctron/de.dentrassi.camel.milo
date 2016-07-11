@@ -6,8 +6,9 @@ OPC UA Server Component
 
 
 
+
 // component options: START
-The OPC UA Server component supports 1 options which are listed below.
+The OPC UA Server component supports 7 options which are listed below.
 
 
 
@@ -15,10 +16,17 @@ The OPC UA Server component supports 1 options which are listed below.
 [width="100%",cols="2s,1m,8",options="header"]
 |=======================================================================
 | Name | Java Type | Description
-| namespaceUri | String | Set the namespace URI defaults to urn:org:apache:camel
+| namespaceUri | String | The URI of the namespace defaults to urn:org:apache:camel
+| applicationName | String | The application name
+| applicationUri | String | The application URI
+| productUri | String | The product URI
+| bindPort | int | The TCP port the server binds to
+| strictEndpointUrlsEnabled | boolean | Set whether strict endpoint URLs are enforced
+| serverName | String | Server name
 |=======================================================================
 {% endraw %}
 // component options: END
+
 
 
 

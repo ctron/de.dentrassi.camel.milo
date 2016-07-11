@@ -27,9 +27,33 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MiloServerComponentConfiguration {
 
     /**
-     * Set the namespace URI defaults to urn:org:apache:camel
+     * The URI of the namespace defaults to urn:org:apache:camel
      */
     private String namespaceUri;
+    /**
+     * The application name
+     */
+    private String applicationName;
+    /**
+     * The application URI
+     */
+    private String applicationUri;
+    /**
+     * The product URI
+     */
+    private String productUri;
+    /**
+     * The TCP port the server binds to
+     */
+    private int bindPort;
+    /**
+     * Set whether strict endpoint URLs are enforced
+     */
+    private Boolean strictEndpointUrlsEnabled = false;
+    /**
+     * Server name
+     */
+    private String serverName;
 
     public String getNamespaceUri() {
         return namespaceUri;
@@ -37,5 +61,53 @@ public class MiloServerComponentConfiguration {
 
     public void setNamespaceUri(String namespaceUri) {
         this.namespaceUri = namespaceUri;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public String getApplicationUri() {
+        return applicationUri;
+    }
+
+    public void setApplicationUri(String applicationUri) {
+        this.applicationUri = applicationUri;
+    }
+
+    public String getProductUri() {
+        return productUri;
+    }
+
+    public void setProductUri(String productUri) {
+        this.productUri = productUri;
+    }
+
+    public int getBindPort() {
+        return bindPort;
+    }
+
+    public void setBindPort(int bindPort) {
+        this.bindPort = bindPort;
+    }
+
+    public Boolean getStrictEndpointUrlsEnabled() {
+        return strictEndpointUrlsEnabled;
+    }
+
+    public void setStrictEndpointUrlsEnabled(Boolean strictEndpointUrlsEnabled) {
+        this.strictEndpointUrlsEnabled = strictEndpointUrlsEnabled;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 }
