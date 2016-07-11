@@ -53,7 +53,7 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	/**
 	 * The index of the namespace.
 	 * <p>
-	 * Can be used as an alternative to the {@link #namespaceUri}
+	 * Can be used as an alternative to the "namespaceUri"
 	 * </p>
 	 */
 	@UriParam
