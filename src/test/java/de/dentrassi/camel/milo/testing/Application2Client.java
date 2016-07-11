@@ -31,9 +31,8 @@ import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
 import de.dentrassi.camel.milo.client.OpcUaClientComponent;
-import de.dentrassi.camel.milo.server.OpcUaServerComponent;
 
-public class Application {
+public class Application2Client {
 	public static void main(final String[] args) throws Exception {
 
 		// camel conext
@@ -57,7 +56,6 @@ public class Application {
 
 		// add OPC UA
 
-		context.addComponent("opcuaserver", new OpcUaServerComponent(cfg));
 		context.addComponent("opcuaclient", new OpcUaClientComponent());
 
 		// add routes
@@ -66,20 +64,9 @@ public class Application {
 
 			@Override
 			public void configure() throws Exception {
-				from("paho:javaonedemo/eclipse-greenhouse-9home/sensors/temperature?brokerUrl=tcp://iot.eclipse.org:1883")
-						.log("Temp update: ${body}").convertBodyTo(String.class).to("opcuaserver:MyItem");
-
-				from("opcuaserver:MyItem").log("MyItem: ${body}");
-
-				from("opcuaserver:MyItem2").log("MyItem2 : ${body}")
-						.to("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883");
-
 				from("opcuaclient:tcp://localhost:12685/items-MyItem?namespaceUri=urn:camel")
 						.log("From OPC UA: ${body}")
 						.to("opcuaclient:tcp://localhost:12685/items-MyItem2?namespaceUri=urn:camel");
-
-				from("paho:de/dentrassi/camel/milo/test1?brokerUrl=tcp://iot.eclipse.org:1883")
-						.log("Back from MQTT: ${body}");
 			}
 		});
 

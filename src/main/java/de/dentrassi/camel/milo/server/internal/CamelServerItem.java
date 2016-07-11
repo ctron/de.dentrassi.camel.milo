@@ -16,12 +16,15 @@
 
 package de.dentrassi.camel.milo.server.internal;
 
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.ubyte;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
+import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.server.api.UaNodeManager;
 import org.eclipse.milo.opcua.sdk.server.model.UaObjectNode;
 import org.eclipse.milo.opcua.sdk.server.model.UaVariableNode;
@@ -33,8 +36,11 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CamelServerItem {
+	private static final Logger LOG = LoggerFactory.getLogger(CamelServerItem.class);
 
 	private UaObjectNode baseNode;
 	private UaVariableNode item;
@@ -67,6 +73,10 @@ public class CamelServerItem {
 
 		};
 
+		// item.setDataType();
+		this.item.setAccessLevel(ubyte(AccessLevel.getMask(AccessLevel.READ_WRITE)));
+		this.item.setUserAccessLevel(ubyte(AccessLevel.getMask(AccessLevel.READ_WRITE)));
+
 		baseNode.addComponent(this.item);
 	}
 
@@ -84,6 +94,7 @@ public class CamelServerItem {
 	}
 
 	protected void setDataValue(final DataValue value) {
+		LOG.debug("setValue -> {}", value);
 		runThrough(this.listeners, c -> c.accept(value));
 	}
 
@@ -102,12 +113,12 @@ public class CamelServerItem {
 	 * @param consumer
 	 *            the consumer processing list elements
 	 */
-	protected <T> void runThrough(final Collection<T> list, final Consumer<T> consumer) {
+	protected <T> void runThrough(final Collection<Consumer<T>> list, final Consumer<Consumer<T>> consumer) {
 		LinkedList<Throwable> errors = null;
 
-		for (final Consumer<DataValue> listener : this.listeners) {
+		for (final Consumer<T> listener : list) {
 			try {
-				listener.accept(this.value);
+				consumer.accept(listener);
 			} catch (final Throwable e) {
 				if (errors == null) {
 					errors = new LinkedList<>();

@@ -27,6 +27,8 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.dentrassi.camel.milo.client.OpcUaClientConnection.MonitorHandle;
+
 public class OpcUaClientConsumer extends DefaultConsumer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientConsumer.class);
@@ -34,6 +36,8 @@ public class OpcUaClientConsumer extends DefaultConsumer {
 	private final OpcUaClientConnection connection;
 
 	private final OpcUaClientEndpointConfiguration configuraton;
+
+	private MonitorHandle handle;
 
 	public OpcUaClientConsumer(final OpcUaClientEndpoint endpoint, final Processor processor,
 			final OpcUaClientConnection connection, final OpcUaClientEndpointConfiguration configuration) {
@@ -50,13 +54,16 @@ public class OpcUaClientConsumer extends DefaultConsumer {
 	protected void doStart() throws Exception {
 		super.doStart();
 
-		this.connection.monitorValue(this.configuraton.getNamespaceUri(), this.configuraton.getItem(),
+		this.handle = this.connection.monitorValue(this.configuraton.getNamespaceUri(), this.configuraton.getItem(),
 				this::handleValueUpdate);
 	}
 
 	@Override
 	protected void doStop() throws Exception {
-		this.connection.removeItem(this.configuraton.getItem());
+		if (this.handle != null) {
+			this.handle.unregister();
+			this.handle = null;
+		}
 
 		super.doStop();
 	}

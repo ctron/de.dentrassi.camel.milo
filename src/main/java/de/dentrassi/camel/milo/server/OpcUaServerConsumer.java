@@ -22,6 +22,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.impl.DefaultMessage;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 
 import de.dentrassi.camel.milo.server.internal.CamelServerItem;
@@ -51,10 +52,9 @@ public class OpcUaServerConsumer extends DefaultConsumer {
 	}
 
 	protected void performWrite(final DataValue value) {
-		final OpcUaServerMessage message = mapToMessage(value);
 
 		final Exchange exchange = getEndpoint().createExchange();
-		exchange.setIn(message);
+		exchange.setIn(mapToMessage(value));
 
 		try {
 			getAsyncProcessor().process(exchange);
@@ -63,15 +63,18 @@ public class OpcUaServerConsumer extends DefaultConsumer {
 		}
 	}
 
-	private OpcUaServerMessage mapToMessage(final DataValue value) {
+	private DefaultMessage mapToMessage(final DataValue value) {
 		if (value == null) {
 			return null;
 		}
 
-		final OpcUaServerMessage result = new OpcUaServerMessage();
+		final DefaultMessage result = new DefaultMessage();
 
-		result.setBody(value.getValue().getValue());
-		result.setHeader("dataValue", value);
+		result.setBody(value);
+		result.setHeader("variantValue", value.getValue().getValue());
+		result.setHeader("statusCode", value.getStatusCode().getValue());
+		result.setHeader("serverTime", value.getServerTime().getJavaDate());
+		result.setHeader("sourceTime", value.getSourceTime().getJavaDate());
 		result.setFault(value.getStatusCode().isBad());
 
 		return result;

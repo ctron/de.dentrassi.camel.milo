@@ -16,8 +16,6 @@
 
 package de.dentrassi.camel.milo.server.internal;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,22 +39,30 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.types.structured.ReadValueId;
 import org.eclipse.milo.opcua.stack.core.types.structured.WriteValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+
+import de.dentrassi.camel.milo.client.OpcUaClientConsumer;
 
 public class CamelNamespace implements Namespace {
 
 	public static final String NAMESPACE_URI = "urn:camel";
 
-	private final UaNodeManager nodeManager;
-	private final SubscriptionModel subscriptionModel;
+	private static final Logger LOG = LoggerFactory.getLogger(OpcUaClientConsumer.class);
 
 	private final UShort namespaceIndex;
+	private final OpcUaServer server;
+
+	private final UaNodeManager nodeManager;
+	private final SubscriptionModel subscriptionModel;
 
 	private final UaFolderNode folder;
 	private final UaObjectNode itemsObject;
@@ -65,6 +71,7 @@ public class CamelNamespace implements Namespace {
 
 	public CamelNamespace(final UShort namespaceIndex, final OpcUaServer server) {
 		this.namespaceIndex = namespaceIndex;
+		this.server = server;
 
 		this.nodeManager = server.getNodeManager();
 		this.subscriptionModel = new SubscriptionModel(server, this);
@@ -140,13 +147,28 @@ public class CamelNamespace implements Namespace {
 
 	@Override
 	public void write(final WriteContext context, final List<WriteValue> writeValues) {
-		final List<StatusCode> results = writeValues.stream().map(value -> {
-			if (this.nodeManager.containsKey(value.getNodeId())) {
-				return new StatusCode(StatusCodes.Bad_NotWritable);
-			} else {
-				return new StatusCode(StatusCodes.Bad_NodeIdUnknown);
+		final List<StatusCode> results = Lists.newArrayListWithCapacity(writeValues.size());
+
+		for (final WriteValue writeValue : writeValues) {
+			try {
+				final UaNode node = this.nodeManager.getNode(writeValue.getNodeId())
+						.orElseThrow(() -> new UaException(StatusCodes.Bad_NodeIdUnknown));
+
+				node.writeAttribute(this.server.getNamespaceManager(), writeValue.getAttributeId().intValue(),
+						writeValue.getValue(), writeValue.getIndexRange());
+
+				if (LOG.isTraceEnabled()) {
+					final Variant variant = writeValue.getValue().getValue();
+					final Object o = variant != null ? variant.getValue() : null;
+					LOG.trace("Wrote value={} to attributeId={} of {}", o, writeValue.getAttributeId(),
+							writeValue.getNodeId());
+				}
+
+				results.add(StatusCode.GOOD);
+			} catch (final UaException e) {
+				results.add(e.getStatusCode());
 			}
-		}).collect(toList());
+		}
 
 		context.complete(results);
 	}

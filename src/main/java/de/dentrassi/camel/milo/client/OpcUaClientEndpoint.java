@@ -22,7 +22,9 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.spi.UriEndpoint;
 
+@UriEndpoint(scheme = "opcuaclient", syntax = "opcuaclient:tcp://host:port/ItemId?namespaceUri=urn:foo:bar", title = "OPC UA Client", consumerClass = OpcUaClientConsumer.class, label = "iot")
 public class OpcUaClientEndpoint extends DefaultEndpoint {
 
 	private final OpcUaClientConnection connection;
@@ -55,7 +57,7 @@ public class OpcUaClientEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return null;
+		return new OpcUaClientProducer(this, this.connection, this.configuration);
 	}
 
 	@Override
