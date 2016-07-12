@@ -16,8 +16,12 @@
 
 package org.apache.camel.component.milo.server;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -30,18 +34,22 @@ import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
-import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 
 /**
  * OPC UA Server based component
  */
 public class MiloServerComponent extends UriEndpointComponent {
+
+	private static final String URL_CHARSET = "UTF-8";
 
 	private static final OpcUaServerConfig DEFAULT_SERVER_CONFIG;
 	static {
@@ -63,7 +71,6 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 		});
 		cfg.setSecurityPolicies(EnumSet.of(SecurityPolicy.None));
-		cfg.setIdentityValidator(new AnonymousIdentityValidator());
 
 		cfg.setUserTokenPolicies(Arrays.asList(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS));
 
@@ -79,24 +86,63 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 	private final Map<String, MiloServerEndpoint> endpoints = new HashMap<>();
 
+	private Boolean enableAnonymousAuthentication;
+
+	private Map<String, String> userMap;
+
+	private List<String> bindAddresses;
+
 	public MiloServerComponent() {
 		this(DEFAULT_SERVER_CONFIG);
 	}
 
 	public MiloServerComponent(final OpcUaServerConfig serverConfig) {
 		super(MiloServerEndpoint.class);
-		this.serverConfig = new OpcUaServerConfigBuilder(serverConfig != null ? serverConfig : DEFAULT_SERVER_CONFIG);
+		this.serverConfig = OpcUaServerConfig.copy(serverConfig != null ? serverConfig : DEFAULT_SERVER_CONFIG);
 	}
 
 	@Override
 	protected void doStart() throws Exception {
-		this.server = new OpcUaServer(this.serverConfig.build());
+		this.server = new OpcUaServer(buildServerConfig());
 
 		this.namespace = this.server.getNamespaceManager().registerAndAdd(this.namespaceUri,
 				ctx -> new CamelNamespace(ctx, this.server));
 
 		super.doStart();
 		this.server.startup();
+	}
+
+	/**
+	 * Build the final server configuration, apply all complex configuration
+	 *
+	 * @return the new server configuration, never returns {@code null}
+	 */
+	private OpcUaServerConfig buildServerConfig() {
+
+		if (this.userMap != null || this.enableAnonymousAuthentication != null) {
+			// set identity validator
+
+			final Map<String, String> userMap = this.userMap != null ? new HashMap<>(this.userMap)
+					: Collections.emptyMap();
+			final boolean allowAnonymous = this.enableAnonymousAuthentication != null
+					? this.enableAnonymousAuthentication : false;
+			final IdentityValidator identityValidator = new UsernameIdentityValidator(allowAnonymous, challenge -> {
+				final String pwd = userMap.get(challenge.getUsername());
+				if (pwd == null) {
+					return false;
+				}
+				return pwd.equals(challenge.getPassword());
+			});
+			this.serverConfig.setIdentityValidator(identityValidator);
+		}
+
+		if (this.bindAddresses != null) {
+			this.serverConfig.setBindAddresses(new ArrayList<>(this.bindAddresses));
+		}
+
+		// build final configuration
+
+		return this.serverConfig.build();
 	}
 
 	@Override
@@ -175,5 +221,56 @@ public class MiloServerComponent extends UriEndpointComponent {
 	 */
 	public void setServerName(final String serverName) {
 		this.serverConfig.setServerName(serverName);
+	}
+
+	/**
+	 * Set user password combinations in the form of "user1:pwd1,user2:pwd2"
+	 * <p>
+	 * Usernames and passwords will be URL decoded
+	 * </p>
+	 */
+	public void setUserAuthenticationCredentials(final String userAuthenticationCredentials) {
+		if (userAuthenticationCredentials != null) {
+			this.userMap = new HashMap<>();
+
+			for (final String creds : userAuthenticationCredentials.split(",")) {
+				final String[] toks = creds.split(":", 2);
+				if (toks.length == 2) {
+					try {
+						this.userMap.put(URLDecoder.decode(toks[0], URL_CHARSET),
+								URLDecoder.decode(toks[1], URL_CHARSET));
+					} catch (final UnsupportedEncodingException e) {
+						// FIXME: do log
+					}
+				}
+			}
+		} else {
+			this.userMap = null;
+		}
+	}
+
+	/**
+	 * Enable anonymous authentication, disabled by default
+	 */
+	public void setEnableAnonymousAuthentication(final boolean enableAnonymousAuthentication) {
+		this.enableAnonymousAuthentication = enableAnonymousAuthentication;
+	}
+
+	/**
+	 * Set the addresses of the local addresses the server should bind to
+	 */
+	public void setBindAddresses(final String bindAddresses) {
+		if (bindAddresses != null) {
+			this.bindAddresses = Arrays.asList(bindAddresses.split(","));
+		} else {
+			this.bindAddresses = null;
+		}
+	}
+
+	/**
+	 * Server build info
+	 */
+	public void setBuildInfo(final BuildInfo buildInfo) {
+		this.serverConfig.setBuildInfo(buildInfo);
 	}
 }
