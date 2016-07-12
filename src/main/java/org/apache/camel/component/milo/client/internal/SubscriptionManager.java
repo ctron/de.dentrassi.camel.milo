@@ -69,6 +69,33 @@ public class SubscriptionManager {
 
 	private final AtomicLong clientHandleCounter = new AtomicLong(0);
 
+	private final class SubscriptionListenerImpl implements SubscriptionListener {
+		@Override
+		public void onSubscriptionTransferFailed(final UaSubscription subscription, final StatusCode statusCode) {
+			LOG.info("Transfer failed {} : {}", subscription.getSubscriptionId(), statusCode);
+
+			// we simply tear it down and build it up again
+			handleConnectionFailue(new RuntimeException("Subscription failed to reconnect"));
+		}
+
+		@Override
+		public void onStatusChanged(final UaSubscription subscription, final StatusCode status) {
+			LOG.info("Subscription status changed {} : {}", subscription.getSubscriptionId(), status);
+		}
+
+		@Override
+		public void onPublishFailure(final UaException exception) {
+		}
+
+		@Override
+		public void onNotificationDataLost(final UaSubscription subscription) {
+		}
+
+		@Override
+		public void onKeepAlive(final UaSubscription subscription, final DateTime publishTime) {
+		}
+	}
+
 	public interface Worker<T> {
 		public void work(T on) throws Exception;
 	}
@@ -444,34 +471,7 @@ public class SubscriptionManager {
 		try {
 
 			final UaSubscription manager = client.getSubscriptionManager().createSubscription(1_000.0).get();
-			client.getSubscriptionManager().addSubscriptionListener(new SubscriptionListener() {
-
-				@Override
-				public void onSubscriptionTransferFailed(final UaSubscription subscription,
-						final StatusCode statusCode) {
-					LOG.info("Transfer failed {} : {}", subscription.getSubscriptionId(), statusCode);
-
-					// we simply tear it down and build it up again
-					handleConnectionFailue(new RuntimeException("Subscription failed to reconnect"));
-				}
-
-				@Override
-				public void onStatusChanged(final UaSubscription subscription, final StatusCode status) {
-					LOG.info("Subscription status changed {} : {}", subscription.getSubscriptionId(), status);
-				}
-
-				@Override
-				public void onPublishFailure(final UaException exception) {
-				}
-
-				@Override
-				public void onNotificationDataLost(final UaSubscription subscription) {
-				}
-
-				@Override
-				public void onKeepAlive(final UaSubscription subscription, final DateTime publishTime) {
-				}
-			});
+			client.getSubscriptionManager().addSubscriptionListener(new SubscriptionListenerImpl());
 
 			return new Connected(client, manager);
 		} catch (final Throwable e) {
