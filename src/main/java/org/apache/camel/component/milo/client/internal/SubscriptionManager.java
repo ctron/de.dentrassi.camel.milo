@@ -24,8 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -39,11 +40,14 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
+import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscriptionManager.SubscriptionListener;
 import org.eclipse.milo.opcua.stack.client.UaTcpStackClient;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
+import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
@@ -114,6 +118,8 @@ public class SubscriptionManager {
 		private final Map<UInteger, Subscription> badSubscriptions = new HashMap<>();
 
 		private final Map<UInteger, UaMonitoredItem> goodSubscriptions = new HashMap<>();
+
+		private final Map<String, UShort> namespaceCache = new ConcurrentHashMap<>();
 
 		public Connected(final OpcUaClient client, final UaSubscription manager) {
 			this.client = client;
@@ -216,7 +222,24 @@ public class SubscriptionManager {
 
 		private CompletableFuture<UShort> lookupNamespaceIndex(final String namespaceUri) {
 
-			// FIXME: implement cache
+			LOG.trace("Looking up namespace: {}", namespaceUri);
+
+			// check cache
+			{
+				final UShort result = this.namespaceCache.get(namespaceUri);
+				if (result != null) {
+					LOG.trace("Found namespace in cache: {} -> {}", namespaceUri, result);
+					return CompletableFuture.completedFuture(result);
+				}
+			}
+
+			/*
+			 * We always read the server side table since the cache did not help
+			 * us and the namespace might have been added to the server at a
+			 * later time.
+			 */
+
+			LOG.debug("Looking up namespace on server: {}", namespaceUri);
 
 			final CompletableFuture<DataValue> future = this.client.readValue(0, TimestampsToReturn.Neither,
 					Identifiers.Server_NamespaceArray);
@@ -228,7 +251,9 @@ public class SubscriptionManager {
 					final String[] namespaces = (String[]) rawValue;
 					for (int i = 0; i < namespaces.length; i++) {
 						if (namespaces[i].equals(namespaceUri)) {
-							return Unsigned.ushort(i);
+							final UShort result = Unsigned.ushort(i);
+							this.namespaceCache.putIfAbsent(namespaceUri, result);
+							return result;
 						}
 					}
 				}
@@ -249,9 +274,10 @@ public class SubscriptionManager {
 			final CompletableFuture<UShort> future;
 
 			if (namespaceIndex != null) {
+				LOG.trace("Using provided index: {}", namespaceIndex);
 				future = CompletableFuture.completedFuture(Unsigned.ushort(namespaceIndex));
 			} else {
-				LOG.debug("Looking up namespace: {}", namespaceUri);
+				LOG.trace("Looking up namespace: {}", namespaceUri);
 				future = lookupNamespaceIndex(namespaceUri);
 			}
 
@@ -276,7 +302,7 @@ public class SubscriptionManager {
 
 	private Connected connected;
 	private boolean disposed;
-	private ScheduledFuture<?> reconnectJob;
+	private Future<?> reconnectJob;
 	private final Map<UInteger, Subscription> subscriptions = new HashMap<>();
 
 	public SubscriptionManager(final MiloClientConfiguration configuration,
@@ -297,9 +323,13 @@ public class SubscriptionManager {
 			this.connected = null;
 		}
 
+		// log
+
+		LOG.info("Connection failed", e);
+
 		// always trigger re-connect
 
-		triggerReconnect();
+		triggerReconnect(true);
 	}
 
 	private void connect() {
@@ -344,7 +374,7 @@ public class SubscriptionManager {
 			}
 		} catch (final Exception e) {
 			LOG.info("Failed to connect", e);
-			triggerReconnect();
+			triggerReconnect(false);
 		}
 	}
 
@@ -365,14 +395,19 @@ public class SubscriptionManager {
 		}
 	}
 
-	private synchronized void triggerReconnect() {
-		LOG.info("Trigger re-connect");
+	private synchronized void triggerReconnect(final boolean immediate) {
+		LOG.info("Trigger re-connect (immediate: {})", immediate);
 
 		if (this.reconnectJob != null) {
+			LOG.info("Re-connect already scheduled");
 			return;
 		}
 
-		this.reconnectJob = this.executor.schedule(this::connect, this.reconnectTimeout, TimeUnit.MILLISECONDS);
+		if (immediate) {
+			this.reconnectJob = this.executor.submit(this::connect);
+		} else {
+			this.reconnectJob = this.executor.schedule(this::connect, this.reconnectTimeout, TimeUnit.MILLISECONDS);
+		}
 	}
 
 	private Connected performConnect() throws Exception {
@@ -409,6 +444,34 @@ public class SubscriptionManager {
 		try {
 
 			final UaSubscription manager = client.getSubscriptionManager().createSubscription(1_000.0).get();
+			client.getSubscriptionManager().addSubscriptionListener(new SubscriptionListener() {
+
+				@Override
+				public void onSubscriptionTransferFailed(final UaSubscription subscription,
+						final StatusCode statusCode) {
+					LOG.info("Transfer failed {} : {}", subscription.getSubscriptionId(), statusCode);
+
+					// we simply tear it down and build it up again
+					handleConnectionFailue(new RuntimeException("Subscription failed to reconnect"));
+				}
+
+				@Override
+				public void onStatusChanged(final UaSubscription subscription, final StatusCode status) {
+					LOG.info("Subscription status changed {} : {}", subscription.getSubscriptionId(), status);
+				}
+
+				@Override
+				public void onPublishFailure(final UaException exception) {
+				}
+
+				@Override
+				public void onNotificationDataLost(final UaSubscription subscription) {
+				}
+
+				@Override
+				public void onKeepAlive(final UaSubscription subscription, final DateTime publishTime) {
+				}
+			});
 
 			return new Connected(client, manager);
 		} catch (final Throwable e) {
