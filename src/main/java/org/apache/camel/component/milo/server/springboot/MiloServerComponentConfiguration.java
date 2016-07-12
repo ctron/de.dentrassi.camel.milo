@@ -16,6 +16,7 @@
  */
 package org.apache.camel.component.milo.server.springboot;
 
+import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -54,6 +55,23 @@ public class MiloServerComponentConfiguration {
      * Server name
      */
     private String serverName;
+    /**
+     * Set user password combinations in the form of user1:pwd1user2:pwd2
+     * Usernames and passwords will be URL decoded
+     */
+    private String userAuthenticationCredentials;
+    /**
+     * Enable anonymous authentication disabled by default
+     */
+    private Boolean enableAnonymousAuthentication = false;
+    /**
+     * Set the addresses of the local addresses the server should bind to
+     */
+    private String bindAddresses;
+    /**
+     * Server build info
+     */
+    private BuildInfo buildInfo;
 
     public String getNamespaceUri() {
         return namespaceUri;
@@ -109,5 +127,39 @@ public class MiloServerComponentConfiguration {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public String getUserAuthenticationCredentials() {
+        return userAuthenticationCredentials;
+    }
+
+    public void setUserAuthenticationCredentials(
+            String userAuthenticationCredentials) {
+        this.userAuthenticationCredentials = userAuthenticationCredentials;
+    }
+
+    public Boolean getEnableAnonymousAuthentication() {
+        return enableAnonymousAuthentication;
+    }
+
+    public void setEnableAnonymousAuthentication(
+            Boolean enableAnonymousAuthentication) {
+        this.enableAnonymousAuthentication = enableAnonymousAuthentication;
+    }
+
+    public String getBindAddresses() {
+        return bindAddresses;
+    }
+
+    public void setBindAddresses(String bindAddresses) {
+        this.bindAddresses = bindAddresses;
+    }
+
+    public BuildInfo getBuildInfo() {
+        return buildInfo;
+    }
+
+    public void setBuildInfo(BuildInfo buildInfo) {
+        this.buildInfo = buildInfo;
     }
 }

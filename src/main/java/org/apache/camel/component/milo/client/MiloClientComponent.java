@@ -24,6 +24,8 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,8 @@ public class MiloClientComponent extends UriEndpointComponent {
 	private final Map<String, MiloClientConnection> cache = new HashMap<>();
 	private final Multimap<String, MiloClientEndpoint> connectionMap = HashMultimap.create();
 
+	private MiloClientConfiguration defaultConfiguration = new MiloClientConfiguration();
+
 	public MiloClientComponent() {
 		super(MiloClientEndpoint.class);
 	}
@@ -46,7 +50,7 @@ public class MiloClientComponent extends UriEndpointComponent {
 	protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
 			throws Exception {
 
-		final MiloClientConfiguration configuration = new MiloClientConfiguration();
+		final MiloClientConfiguration configuration = new MiloClientConfiguration(this.defaultConfiguration);
 		configuration.setEndpointUri(remaining);
 		setProperties(configuration, parameters);
 
@@ -85,6 +89,30 @@ public class MiloClientComponent extends UriEndpointComponent {
 		whenHasText(configuration::getApplicationUri, builder::setApplicationUri);
 		whenHasText(configuration::getProductUri, builder::setProductUri);
 
+		if (configuration.getRequestTimeout() != null) {
+			builder.setRequestTimeout(Unsigned.uint(configuration.getRequestTimeout()));
+		}
+		if (configuration.getChannelLifetime() != null) {
+			builder.setChannelLifetime(Unsigned.uint(configuration.getChannelLifetime()));
+		}
+
+		whenHasText(configuration::getSessionName, value -> builder.setSessionName(() -> value));
+		if (configuration.getSessionTimeout() != null) {
+			builder.setSessionTimeout(UInteger.valueOf(configuration.getSessionTimeout()));
+		}
+
+		if (configuration.getMaxPendingPublishRequests() != null) {
+			builder.setMaxPendingPublishRequests(UInteger.valueOf(configuration.getMaxPendingPublishRequests()));
+		}
+
+		if (configuration.getMaxResponseMessageSize() != null) {
+			builder.setMaxResponseMessageSize(UInteger.valueOf(configuration.getMaxPendingPublishRequests()));
+		}
+
+		if (configuration.getSecureChannelReauthenticationEnabled() != null) {
+			builder.setSecureChannelReauthenticationEnabled(configuration.getSecureChannelReauthenticationEnabled());
+		}
+
 		return builder;
 	}
 
@@ -93,6 +121,41 @@ public class MiloClientComponent extends UriEndpointComponent {
 		if (value != null && !value.isEmpty()) {
 			valueConsumer.accept(value);
 		}
+	}
+
+	/**
+	 * All default options for client
+	 */
+	public void setDefaultConfiguration(final MiloClientConfiguration defaultConfiguration) {
+		this.defaultConfiguration = defaultConfiguration;
+	}
+
+	/**
+	 * Default application name
+	 */
+	public void setApplicationName(final String applicationName) {
+		this.defaultConfiguration.setApplicationName(applicationName);
+	}
+
+	/**
+	 * Default application URI
+	 */
+	public void setApplicationUri(final String applicationUri) {
+		this.defaultConfiguration.setApplicationUri(applicationUri);
+	}
+
+	/**
+	 * Default product URI
+	 */
+	public void setProductUri(final String productUri) {
+		this.defaultConfiguration.setProductUri(productUri);
+	}
+
+	/**
+	 * Default reconnect timeout
+	 */
+	public void setReconnectTimeout(final Long reconnectTimeout) {
+		this.defaultConfiguration.setRequestTimeout(reconnectTimeout);
 	}
 
 	public synchronized void disposed(final MiloClientEndpoint endpoint) {

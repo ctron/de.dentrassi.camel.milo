@@ -65,6 +65,12 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	@UriParam
 	private Double samplingInterval;
 
+	/**
+	 * The client configuration
+	 */
+	@UriParam
+	private MiloClientConfiguration client;
+
 	private final MiloClientConnection connection;
 	private final MiloClientComponent component;
 

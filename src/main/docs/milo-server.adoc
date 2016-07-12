@@ -7,8 +7,9 @@ OPC UA Server Component
 
 
 
+
 // component options: START
-The OPC UA Server component supports 7 options which are listed below.
+The OPC UA Server component supports 11 options which are listed below.
 
 
 
@@ -23,9 +24,14 @@ The OPC UA Server component supports 7 options which are listed below.
 | bindPort | int | The TCP port the server binds to
 | strictEndpointUrlsEnabled | boolean | Set whether strict endpoint URLs are enforced
 | serverName | String | Server name
+| userAuthenticationCredentials | String | Set user password combinations in the form of user1:pwd1user2:pwd2 Usernames and passwords will be URL decoded
+| enableAnonymousAuthentication | boolean | Enable anonymous authentication disabled by default
+| bindAddresses | String | Set the addresses of the local addresses the server should bind to
+| buildInfo | BuildInfo | Server build info
 |=======================================================================
 {% endraw %}
 // component options: END
+
 
 
 
