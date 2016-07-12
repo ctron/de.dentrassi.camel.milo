@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +44,7 @@ import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
+import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 
 /**
  * OPC UA Server based component
@@ -71,8 +73,6 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 		});
 		cfg.setSecurityPolicies(EnumSet.of(SecurityPolicy.None));
-
-		cfg.setUserTokenPolicies(Arrays.asList(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS));
 
 		DEFAULT_SERVER_CONFIG = cfg.build();
 	}
@@ -134,6 +134,17 @@ public class MiloServerComponent extends UriEndpointComponent {
 				return pwd.equals(challenge.getPassword());
 			});
 			this.serverConfig.setIdentityValidator(identityValidator);
+
+			// add token policies
+
+			final List<UserTokenPolicy> tokenPolicies = new LinkedList<>();
+			if (Boolean.TRUE.equals(this.enableAnonymousAuthentication)) {
+				tokenPolicies.add(OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS);
+			}
+			if (userMap != null) {
+				tokenPolicies.add(OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME);
+			}
+			this.serverConfig.setUserTokenPolicies(tokenPolicies);
 		}
 
 		if (this.bindAddresses != null) {

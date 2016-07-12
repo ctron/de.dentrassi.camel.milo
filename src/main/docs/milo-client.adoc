@@ -71,8 +71,9 @@ If you need alternate options for the same endpoint URI it is possible though to
 which will by added internally to the endpoint URI in order to select a different shared connection instance.
 In other words, shared connections located by the combination of endpoint URI and client id.
 
+
 // endpoint options: START
-The Milo based OPC UA Client component supports 14 endpoint options which are listed below:
+The Milo based OPC UA Client component supports 20 endpoint options which are listed below:
 
 {% raw %}
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
@@ -90,11 +91,18 @@ The Milo based OPC UA Client component supports 14 endpoint options which are li
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 | applicationName | client | Apache Camel adapter for Eclipse Milo | String | The application name
 | applicationUri | client | http://camel.apache.org/EclipseMilo | String | The application URI
+| channelLifetime | client |  | Long | Channel lifetime in milliseconds
+| maxPendingPublishRequests | client |  | Long | The maximum number of pending publish requests
+| maxResponseMessageSize | client |  | Long | The maximum number of bytes a response message may have
 | productUri | client | http://camel.apache.org/EclipseMilo | String | The product URI
-| reconnectTimeout | client |  | Long | Reconnect timeout in milliseconds
+| requestTimeout | client |  | Long | Request timeout in milliseconds
+| secureChannelReauthenticationEnabled | client |  | Boolean | Whether secure channel re-authentication is enabled
+| sessionName | client |  | String | Session name
+| sessionTimeout | client |  | Long | Session timeout in milliseconds
 |=======================================================================
 {% endraw %}
 // endpoint options: END
+
 
 Exactly one of the parameters `namespaceUri` or `namespaceIndex` is required. It is preferred to use the URI over the index. If both are specified the index takes precedence. It is an error to specify neither.
 

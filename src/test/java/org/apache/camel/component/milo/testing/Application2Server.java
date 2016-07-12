@@ -18,6 +18,7 @@ package org.apache.camel.component.milo.testing;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 public class Application2Server {
@@ -31,6 +32,7 @@ public class Application2Server {
 
 		// no need to register, gets auto detected
 		// context.addComponent("paho", new PahoComponent());
+		((MiloServerComponent) context.getComponent("milo-server")).setUserAuthenticationCredentials("foo:bar");
 
 		// add routes
 
