@@ -37,24 +37,10 @@ public class MonitorItemTest extends AbstractMiloServerTest {
 	private static final String MILO_CLIENT_ITEM_C1_1 = "milo-client:tcp://foo:bar@localhost:12685?nodeId=items-myitem1&namespaceUri="
 			+ MiloServerComponent.DEFAULT_NAMESPACE_URI;
 
-	private static final String MILO_CLIENT_ITEM_C2_1 = "milo-client:tcp://foo:bar2@localhost:12685?nodeId=items-myitem1&namespaceUri="
-			+ MiloServerComponent.DEFAULT_NAMESPACE_URI;
-
-	private static final String MILO_CLIENT_ITEM_C3_1 = "milo-client:tcp://foo2:bar@localhost:12685?nodeId=items-myitem1&namespaceUri="
-			+ MiloServerComponent.DEFAULT_NAMESPACE_URI;
-
 	private static final String MOCK_TEST_1 = "mock:test1";
-	private static final String MOCK_TEST_2 = "mock:test2";
-	private static final String MOCK_TEST_3 = "mock:test3";
 
 	@EndpointInject(uri = MOCK_TEST_1)
 	protected MockEndpoint test1Endpoint;
-
-	@EndpointInject(uri = MOCK_TEST_2)
-	protected MockEndpoint test2Endpoint;
-
-	@EndpointInject(uri = MOCK_TEST_3)
-	protected MockEndpoint test3Endpoint;
 
 	@Produce(uri = DIRECT_START_1)
 	protected ProducerTemplate producer1;
@@ -67,31 +53,35 @@ public class MonitorItemTest extends AbstractMiloServerTest {
 				from(DIRECT_START_1).to(MILO_SERVER_ITEM_1);
 
 				from(MILO_CLIENT_ITEM_C1_1).to(MOCK_TEST_1);
-				from(MILO_CLIENT_ITEM_C2_1).to(MOCK_TEST_2);
-				from(MILO_CLIENT_ITEM_C3_1).to(MOCK_TEST_3);
 			}
 		};
 	}
 
 	/**
-	 * Monitor multiple connections, but only one has the correct credentials
+	 * Monitor multiple events
 	 */
 	@Test
 	public void testMonitorItem1() throws Exception {
-		// set server value
+		/*
+		 * we will wait 2 * 1_000 milliseconds between server updates since the
+		 * default server update rate is 1_000 milliseconds
+		 */
+
+		// set server values
 		this.producer1.sendBody("Foo");
+		Thread.sleep(2_000);
+		this.producer1.sendBody("Bar");
+		Thread.sleep(2_000);
+		this.producer1.sendBody("Baz");
+		Thread.sleep(2_000);
 
 		// item 1 ... only this one receives
-		this.test1Endpoint.setExpectedCount(1);
-		this.test1Endpoint.setSleepForEmptyTest(5_000);
+		this.test1Endpoint.setExpectedCount(3);
 
-		// item 2
-		this.test2Endpoint.setExpectedCount(0);
-		this.test2Endpoint.setSleepForEmptyTest(5_000);
-
-		// item 3
-		this.test3Endpoint.setExpectedCount(0);
-		this.test3Endpoint.setSleepForEmptyTest(5_000);
+		// tests
+		testBody(this.test1Endpoint.message(0), assertGoodValue("Foo"));
+		testBody(this.test1Endpoint.message(1), assertGoodValue("Bar"));
+		testBody(this.test1Endpoint.message(2), assertGoodValue("Baz"));
 
 		// assert
 		this.assertMockEndpointsSatisfied();
