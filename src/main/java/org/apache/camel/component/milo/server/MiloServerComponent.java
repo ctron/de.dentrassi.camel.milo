@@ -98,7 +98,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 	public MiloServerComponent(final OpcUaServerConfig serverConfig) {
 		super(MiloServerEndpoint.class);
-		this.serverConfig = OpcUaServerConfig.copy(serverConfig != null ? serverConfig : DEFAULT_SERVER_CONFIG);
+		this.serverConfig = Workarounds.copy(serverConfig != null ? serverConfig : DEFAULT_SERVER_CONFIG);
 	}
 
 	@Override
