@@ -53,6 +53,8 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 	private static final String URL_CHARSET = "UTF-8";
 
+	public static final String DEFAULT_NAMESPACE_URI = "urn:org:apache:camel";
+
 	private static final OpcUaServerConfig DEFAULT_SERVER_CONFIG;
 	static {
 		final OpcUaServerConfigBuilder cfg = OpcUaServerConfig.builder();
@@ -77,7 +79,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 		DEFAULT_SERVER_CONFIG = cfg.build();
 	}
 
-	private String namespaceUri = CamelNamespace.NAMESPACE_URI;
+	private String namespaceUri = DEFAULT_NAMESPACE_URI;
 
 	private final OpcUaServerConfigBuilder serverConfig;
 
@@ -106,7 +108,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 		this.server = new OpcUaServer(buildServerConfig());
 
 		this.namespace = this.server.getNamespaceManager().registerAndAdd(this.namespaceUri,
-				ctx -> new CamelNamespace(ctx, this.server));
+				index -> new CamelNamespace(index, this.namespaceUri, this.server));
 
 		super.doStart();
 		this.server.startup();

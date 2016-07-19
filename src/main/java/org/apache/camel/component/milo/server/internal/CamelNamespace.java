@@ -53,11 +53,12 @@ import com.google.common.collect.Lists;
 
 public class CamelNamespace implements Namespace {
 
-	public static final String NAMESPACE_URI = "urn:org:apache:camel";
-
 	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
 
 	private final UShort namespaceIndex;
+
+	private final String namespaceUri;
+
 	private final OpcUaServer server;
 
 	private final UaNodeManager nodeManager;
@@ -68,8 +69,9 @@ public class CamelNamespace implements Namespace {
 
 	private final Map<String, CamelServerItem> itemMap = new HashMap<>();
 
-	public CamelNamespace(final UShort namespaceIndex, final OpcUaServer server) {
+	public CamelNamespace(final UShort namespaceIndex, final String namespaceUri, final OpcUaServer server) {
 		this.namespaceIndex = namespaceIndex;
+		this.namespaceUri = namespaceUri;
 		this.server = server;
 
 		this.nodeManager = server.getNodeManager();
@@ -111,7 +113,7 @@ public class CamelNamespace implements Namespace {
 
 	@Override
 	public String getNamespaceUri() {
-		return NAMESPACE_URI;
+		return this.namespaceUri;
 	}
 
 	@Override
