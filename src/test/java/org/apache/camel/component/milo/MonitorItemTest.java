@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo.server;
+package org.apache.camel.component.milo;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 

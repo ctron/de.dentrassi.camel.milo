@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.component.milo.server;
+package org.apache.camel.component.milo;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.RoutesBuilder;
