@@ -381,7 +381,7 @@ public class SubscriptionManager {
 				}
 
 				try {
-					LOG.debug("Setting subscriptions");
+					LOG.debug("Setting subscriptions: {}", this.subscriptions.size());
 					connected.putSubscriptions(this.subscriptions);
 
 					LOG.debug("Update state : {} -> {}", this.connected, connected);
