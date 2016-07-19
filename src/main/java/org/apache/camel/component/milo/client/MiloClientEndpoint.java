@@ -71,6 +71,12 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	@UriParam
 	private MiloClientConfiguration client;
 
+	/**
+	 * Default "await" setting for writes
+	 */
+	@UriParam
+	boolean defaultAwaitWrites = false;
+
 	private final MiloClientConnection connection;
 	private final MiloClientComponent component;
 
@@ -101,7 +107,7 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 
 	@Override
 	public Producer createProducer() throws Exception {
-		return new MiloClientProducer(this, this.connection, this);
+		return new MiloClientProducer(this, this.connection, this, this.defaultAwaitWrites);
 	}
 
 	@Override
@@ -154,5 +160,13 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 
 	public void setSamplingInterval(final Double samplingInterval) {
 		this.samplingInterval = samplingInterval;
+	}
+
+	public boolean isDefaultAwaitWrites() {
+		return this.defaultAwaitWrites;
+	}
+
+	public void setDefaultAwaitWrites(final boolean defaultAwaitWrites) {
+		this.defaultAwaitWrites = defaultAwaitWrites;
 	}
 }

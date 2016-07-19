@@ -33,6 +33,8 @@ public class WriteClientTest extends AbstractMiloServerTest {
 
 	private static final String DIRECT_START_1 = "direct:start1";
 	private static final String DIRECT_START_2 = "direct:start2";
+	private static final String DIRECT_START_3 = "direct:start3";
+	private static final String DIRECT_START_4 = "direct:start4";
 
 	private static final String MILO_SERVER_ITEM_1 = "milo-server:myitem1";
 	private static final String MILO_SERVER_ITEM_2 = "milo-server:myitem2";
@@ -65,6 +67,12 @@ public class WriteClientTest extends AbstractMiloServerTest {
 	@Produce(uri = DIRECT_START_2)
 	protected ProducerTemplate producer2;
 
+	@Produce(uri = DIRECT_START_3)
+	protected ProducerTemplate producer3;
+
+	@Produce(uri = DIRECT_START_4)
+	protected ProducerTemplate producer4;
+
 	@Override
 	protected RoutesBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {
@@ -76,6 +84,9 @@ public class WriteClientTest extends AbstractMiloServerTest {
 
 				from(DIRECT_START_1).to(MILO_CLIENT_ITEM_C1_1);
 				from(DIRECT_START_2).to(MILO_CLIENT_ITEM_C1_2);
+
+				from(DIRECT_START_3).to(MILO_CLIENT_ITEM_C2_1);
+				from(DIRECT_START_4).to(MILO_CLIENT_ITEM_C2_2);
 			}
 		};
 	}
@@ -84,15 +95,15 @@ public class WriteClientTest extends AbstractMiloServerTest {
 	public void testWrite1() throws Exception {
 		// item 1
 		this.test1Endpoint.setExpectedCount(2);
-		testBody(this.test1Endpoint.message(0), assertGoodValue("Foo"));
+		testBody(this.test1Endpoint.message(0), assertGoodValue("Foo1"));
 		testBody(this.test1Endpoint.message(1), assertGoodValue("Foo2"));
 
 		// item 2
 		this.test2Endpoint.setExpectedCount(0);
 
 		// send
-		this.producer1.sendBody(new Variant("Foo"));
-		this.producer1.sendBody(new Variant("Foo2"));
+		sendValue(this.producer1, new Variant("Foo1"));
+		sendValue(this.producer1, new Variant("Foo2"));
 
 		// assert
 		this.assertMockEndpointsSatisfied();
@@ -105,14 +116,41 @@ public class WriteClientTest extends AbstractMiloServerTest {
 
 		// item 2
 		this.test2Endpoint.setExpectedCount(2);
-		testBody(this.test2Endpoint.message(0), assertGoodValue("Foo"));
+		testBody(this.test2Endpoint.message(0), assertGoodValue("Foo1"));
 		testBody(this.test2Endpoint.message(1), assertGoodValue("Foo2"));
 
 		// send
-		this.producer2.sendBody(new Variant("Foo"));
-		this.producer2.sendBody(new Variant("Foo2"));
+		sendValue(this.producer2, new Variant("Foo1"));
+		sendValue(this.producer2, new Variant("Foo2"));
 
 		// assert
 		this.assertMockEndpointsSatisfied();
+	}
+
+	@Test
+	public void testWrite3() throws Exception {
+		// item 1
+		this.test1Endpoint.setExpectedCount(2);
+		testBody(this.test1Endpoint.message(0), assertGoodValue("Foo1"));
+		testBody(this.test1Endpoint.message(1), assertGoodValue("Foo3"));
+
+		// item 1
+		this.test2Endpoint.setExpectedCount(2);
+		testBody(this.test2Endpoint.message(0), assertGoodValue("Foo2"));
+		testBody(this.test2Endpoint.message(1), assertGoodValue("Foo4"));
+
+		// send
+		sendValue(this.producer1, new Variant("Foo1"));
+		sendValue(this.producer2, new Variant("Foo2"));
+		sendValue(this.producer3, new Variant("Foo3"));
+		sendValue(this.producer4, new Variant("Foo4"));
+
+		// assert
+		this.assertMockEndpointsSatisfied();
+	}
+
+	private static void sendValue(final ProducerTemplate producerTemplate, final Variant variant) {
+		// we always write synchronously since we do need the mesage order
+		producerTemplate.sendBodyAndHeader(variant, "await", true);
 	}
 }

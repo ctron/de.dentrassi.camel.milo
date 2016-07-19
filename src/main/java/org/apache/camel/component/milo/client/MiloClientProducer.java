@@ -31,12 +31,15 @@ public class MiloClientProducer extends DefaultProducer {
 
 	private final MiloClientItemConfiguration configuration;
 
+	private final boolean defaultAwaitWrites;
+
 	public MiloClientProducer(final Endpoint endpoint, final MiloClientConnection connection,
-			final MiloClientItemConfiguration configuration) {
+			final MiloClientItemConfiguration configuration, final boolean defaultAwaitWrites) {
 		super(endpoint);
 
 		this.connection = connection;
 		this.configuration = configuration;
+		this.defaultAwaitWrites = defaultAwaitWrites;
 	}
 
 	@Override
@@ -46,8 +49,10 @@ public class MiloClientProducer extends DefaultProducer {
 
 		LOG.debug("Processing message: {}", value);
 
+		final Boolean await = msg.getHeader("await", this.defaultAwaitWrites, Boolean.class);
+
 		this.connection.writeValue(this.configuration.getNamespaceUri(), this.configuration.getNamespaceIndex(),
-				this.configuration.getNodeId(), value);
+				this.configuration.getNodeId(), value, await != null ? await : false);
 	}
 
 }

@@ -101,10 +101,10 @@ public class MiloClientConnection implements AutoCloseable {
 	}
 
 	public void writeValue(final String namespaceUri, final Integer namespaceIndex, final String item,
-			final Object value) {
+			final Object value, final boolean await) {
 		checkInit();
 
-		this.manager.write(namespaceUri, namespaceIndex, item, mapValue(value));
+		this.manager.write(namespaceUri, namespaceIndex, item, mapValue(value), await);
 	}
 
 	/**

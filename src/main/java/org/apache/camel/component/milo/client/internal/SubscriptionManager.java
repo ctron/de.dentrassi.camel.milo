@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -519,18 +520,30 @@ public class SubscriptionManager {
 		}
 	}
 
-	public synchronized void write(final String namespaceUri, final Integer namespaceIndex, final String item,
-			final DataValue value) {
-		// schedule operation
+	public void write(final String namespaceUri, final Integer namespaceIndex, final String item, final DataValue value,
+			final boolean await) {
+		CompletableFuture<Object> future = null;
 
-		if (this.connected != null) {
-			this.connected.write(namespaceUri, namespaceIndex, item, value).handleAsync((status, e) -> {
-				// handle outside the lock, running using handleAsync
-				if (e != null) {
-					handleConnectionFailue(e);
-				}
-				return null;
-			}, this.executor);
+		synchronized (this) {
+			if (this.connected != null) {
+				future = this.connected.write(namespaceUri, namespaceIndex, item, value).handleAsync((status, e) -> {
+					// handle outside the lock, running using handleAsync
+					if (e != null) {
+						handleConnectionFailue(e);
+					}
+					return null;
+				}, this.executor);
+			}
+		}
+
+		if (await && future != null) {
+			try {
+				future.get();
+			} catch (InterruptedException | ExecutionException e) {
+				// should never happen since our previous handler should not
+				// fail
+				LOG.warn("Failed to wait for completion", e);
+			}
 		}
 	}
 
