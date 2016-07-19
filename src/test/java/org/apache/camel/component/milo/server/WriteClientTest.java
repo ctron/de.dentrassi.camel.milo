@@ -16,24 +16,19 @@
 
 package org.apache.camel.component.milo.server;
 
-import java.util.function.Consumer;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.mock.AssertionClause;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.junit.Test;
 
 /**
  * Unit tests for milo server component which require an actual connection
  */
-public class MiloServerComponentRemoteTest extends CamelTestSupport {
+public class WriteClientTest extends AbstractMiloServerTest {
 
 	private static final String DIRECT_START_1 = "direct:start1";
 	private static final String DIRECT_START_2 = "direct:start2";
@@ -75,9 +70,6 @@ public class MiloServerComponentRemoteTest extends CamelTestSupport {
 			@Override
 			public void configure() throws Exception {
 
-				final MiloServerComponent server = getContext().getComponent("milo-server", MiloServerComponent.class);
-				configureMiloServer(server);
-
 				from(MILO_SERVER_ITEM_1).to(MOCK_TEST_1);
 				from(MILO_SERVER_ITEM_2).to(MOCK_TEST_2);
 
@@ -87,36 +79,8 @@ public class MiloServerComponentRemoteTest extends CamelTestSupport {
 		};
 	}
 
-	protected void configureMiloServer(final MiloServerComponent server) {
-		server.setBindAddresses("localhost");
-		server.setBindPort(12685);
-		server.setUserAuthenticationCredentials("foo:bar,foo2:bar2");
-	}
-
-	public static void testBody(final AssertionClause clause, final Consumer<DataValue> valueConsumer) {
-		testBody(clause, DataValue.class, valueConsumer);
-	}
-
-	public static <T> void testBody(final AssertionClause clause, final Class<T> bodyClass,
-			final Consumer<T> valueConsumer) {
-		clause.predicate(exchange -> {
-			final T body = exchange.getIn().getBody(bodyClass);
-			valueConsumer.accept(body);
-			return true;
-		});
-	}
-
-	public static Consumer<DataValue> assertGoodValue(final Object expectedValue) {
-		return value -> {
-			assertNotNull(value);
-			assertEquals(expectedValue, value.getValue().getValue());
-			assertTrue(value.getStatusCode().isGood());
-			assertFalse(value.getStatusCode().isBad());
-		};
-	}
-
 	@Test
-	public void testWrite() throws Exception {
+	public void testWrite1() throws Exception {
 		// item 1
 		this.test1Endpoint.setExpectedCount(2);
 		testBody(this.test1Endpoint.message(0), assertGoodValue("Foo"));
@@ -128,6 +92,24 @@ public class MiloServerComponentRemoteTest extends CamelTestSupport {
 		// send
 		this.producer1.sendBody(new Variant("Foo"));
 		this.producer1.sendBody(new Variant("Foo2"));
+
+		// assert
+		this.assertMockEndpointsSatisfied();
+	}
+
+	@Test
+	public void testWrite2() throws Exception {
+		// item 1
+		this.test1Endpoint.setExpectedCount(0);
+
+		// item 2
+		this.test2Endpoint.setExpectedCount(2);
+		testBody(this.test2Endpoint.message(0), assertGoodValue("Foo"));
+		testBody(this.test2Endpoint.message(1), assertGoodValue("Foo2"));
+
+		// send
+		this.producer2.sendBody(new Variant("Foo"));
+		this.producer2.sendBody(new Variant("Foo2"));
 
 		// assert
 		this.assertMockEndpointsSatisfied();

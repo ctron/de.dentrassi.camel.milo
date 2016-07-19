@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  * Unit tests for milo server component without using an actual connection
  */
-public class MiloServerComponentLocalTest extends CamelTestSupport {
+public class ServerLocalTest extends CamelTestSupport {
 
 	private static final String MILO_ITEM_1 = "milo-server:myitem1";
 
@@ -80,5 +80,4 @@ public class MiloServerComponentLocalTest extends CamelTestSupport {
 	public void testAcceptDataValueDouble() {
 		sendBody(MILO_ITEM_1, new DataValue(new Variant(0.0)));
 	}
-
 }
