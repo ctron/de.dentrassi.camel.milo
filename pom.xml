@@ -41,7 +41,7 @@
 
 		<!-- we do require java 8 -->
 		<jdk.version>1.8</jdk.version>
-		
+
 		<camel.osgi.export.pkg>!*.internal.*,org.apache.camel.component.milo.*</camel.osgi.export.pkg>
 		<camel.osgi.export.service>
 			org.apache.camel.spi.ComponentResolver;component=milo-client,
@@ -172,6 +172,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- require due to issue eclipse/milo#23 -->
+					<reuseForks>false</reuseForks>
+				</configuration>
 			</plugin>
 
 		</plugins>
