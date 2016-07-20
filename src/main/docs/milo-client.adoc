@@ -50,14 +50,16 @@ The URI syntax of the endpoint is:
 
 [source]
 ------------------------
-opcuaclient:tcp://host:port/path/to/service?itemId=item-id&namespaceUri=urn:foo:bar
+milo-client:tcp://[user:password@]host:port/path/to/service?itemId=item-id&namespaceUri=urn:foo:bar
 ------------------------
 
 If the server does not use a path, then it is possible to simply omit it:
 
 ------------------------
-opcuaclient:tcp://host:port?itemId=item-id&namespaceUri=urn:foo:bar
+milo-client:tcp://[user:password@]host:port?itemId=item-id&namespaceUri=urn:foo:bar
 ------------------------
+
+If no user credentials are provided the client will switch to anonmyous mode.
 
 [[MiloClient-URIOptions]]
 URI options

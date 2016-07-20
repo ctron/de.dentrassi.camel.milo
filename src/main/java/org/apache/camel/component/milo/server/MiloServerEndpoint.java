@@ -20,21 +20,20 @@ import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.component.milo.server.internal.CamelNamespace;
+import org.apache.camel.component.milo.server.internal.CamelServerItem;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriPath;
 
-import org.apache.camel.component.milo.server.internal.CamelNamespace;
-import org.apache.camel.component.milo.server.internal.CamelServerItem;
-
 /**
  * OPC UA Server based endpoint
  */
-@UriEndpoint(scheme = "milo-server", syntax = "milo-server:ItemId", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
+@UriEndpoint(scheme = "milo-server", syntax = "milo-server:itemId[?options]", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
 public class MiloServerEndpoint extends DefaultEndpoint {
 
-	@UriPath(label = "Item ID", description = "The ID of the item")
+	@UriPath
 	@Metadata(required = "true")
 	private String itemId;
 
@@ -43,7 +42,7 @@ public class MiloServerEndpoint extends DefaultEndpoint {
 	private CamelServerItem item;
 
 	public MiloServerEndpoint(final String uri, final String itemId, final CamelNamespace namespace,
-							  final Component component) {
+			final Component component) {
 		super(uri, component);
 		this.itemId = itemId;
 		this.namespace = namespace;
