@@ -10,7 +10,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.apache.camel.component.milo" level="debug"/>
+  <logger name="org.apache.camel.component.milo" level="info"/>
   
   <root level="info">
     <appender-ref ref="STDOUT" />
