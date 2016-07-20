@@ -113,6 +113,8 @@ public class MiloClientComponent extends UriEndpointComponent {
 			builder.setSecureChannelReauthenticationEnabled(configuration.getSecureChannelReauthenticationEnabled());
 		}
 
+		builder.setKeyPair(null);
+
 		return builder;
 	}
 

@@ -63,6 +63,21 @@ public class MiloClientConfiguration implements Cloneable {
 	@UriParam(label = "client")
 	private Boolean secureChannelReauthenticationEnabled;
 
+	@UriParam(label = "client")
+	private String keyStoreUrl;
+
+	@UriParam(label = "client")
+	private String keyStoreType = "PKCS";
+
+	@UriParam(label = "client")
+	private String keyAlias;
+
+	@UriParam(label = "client", secret = true)
+	private String keyStorePassword;
+
+	@UriParam(label = "client", secret = true)
+	private String keyPassword;
+
 	public MiloClientConfiguration() {
 	}
 
@@ -201,6 +216,61 @@ public class MiloClientConfiguration implements Cloneable {
 
 	public Boolean getSecureChannelReauthenticationEnabled() {
 		return this.secureChannelReauthenticationEnabled;
+	}
+
+	/**
+	 * The URL where the key should be loaded from
+	 */
+	public void setKeyStoreUrl(final String keyStoreUrl) {
+		this.keyStoreUrl = keyStoreUrl;
+	}
+
+	public String getKeyStoreUrl() {
+		return this.keyStoreUrl;
+	}
+
+	/**
+	 * The key store type
+	 */
+	public void setKeyStoreType(final String keyStoreType) {
+		this.keyStoreType = keyStoreType;
+	}
+
+	public String getKeyStoreType() {
+		return this.keyStoreType;
+	}
+
+	/**
+	 * The name of the key in the keystore file
+	 */
+	public void setKeyAlias(final String keyAlias) {
+		this.keyAlias = keyAlias;
+	}
+
+	public String getKeyAlias() {
+		return this.keyAlias;
+	}
+
+	/**
+	 * The keystore password
+	 */
+	public void setKeyStorePassword(final String keyStorePassword) {
+		this.keyStorePassword = keyStorePassword;
+	}
+
+	public String getKeyStorePassword() {
+		return this.keyStorePassword;
+	}
+
+	/**
+	 * The key password
+	 */
+	public void setKeyPassword(final String keyPassword) {
+		this.keyPassword = keyPassword;
+	}
+
+	public String getKeyPassword() {
+		return this.keyPassword;
 	}
 
 	@Override

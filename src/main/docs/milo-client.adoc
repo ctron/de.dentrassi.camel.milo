@@ -75,8 +75,9 @@ In other words, shared connections located by the combination of endpoint URI an
 
 
 
+
 // endpoint options: START
-The Milo based OPC UA Client component supports 21 endpoint options which are listed below:
+The Milo based OPC UA Client component supports 26 endpoint options which are listed below:
 
 {% raw %}
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
@@ -96,6 +97,11 @@ The Milo based OPC UA Client component supports 21 endpoint options which are li
 | applicationName | client | Apache Camel adapter for Eclipse Milo | String | The application name
 | applicationUri | client | http://camel.apache.org/EclipseMilo | String | The application URI
 | channelLifetime | client |  | Long | Channel lifetime in milliseconds
+| keyAlias | client |  | String | The name of the key in the keystore file
+| keyPassword | client |  | String | The key password
+| keyStorePassword | client |  | String | The keystore password
+| keyStoreType | client |  | String | The key store type
+| keyStoreUrl | client |  | String | The URL where the key should be loaded from
 | maxPendingPublishRequests | client |  | Long | The maximum number of pending publish requests
 | maxResponseMessageSize | client |  | Long | The maximum number of bytes a response message may have
 | productUri | client | http://camel.apache.org/EclipseMilo | String | The product URI
@@ -106,6 +112,7 @@ The Milo based OPC UA Client component supports 21 endpoint options which are li
 |=======================================================================
 {% endraw %}
 // endpoint options: END
+
 
 
 
