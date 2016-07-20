@@ -12,7 +12,7 @@
 	<artifactId>de.dentrassi.camel.milo</artifactId>
 
 	<name>Apache Camel adapter for Eclipse Milo</name>
-	<description>This is an Apache Camel adapter for OPC UA based on the implementation of Eclipse Milo™.</description>
+	<description>This is an Apache Camel adapter for OPC UA based on the implementation of Eclipse Milo™</description>
 
 	<inceptionYear>2016</inceptionYear>
 
@@ -20,6 +20,7 @@
 		<developer>
 			<id>ctron</id>
 			<name>Jens Reimann</name>
+			<email>jreimann@redhat.com</email>
 		</developer>
 	</developers>
 
@@ -55,6 +56,12 @@
 			<id>oss-sonatype</id>
 			<name>oss-sonatype</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
 		</repository>
 		<repository>
 			<id>apache.snapshots</id>
@@ -73,11 +80,6 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-paho</artifactId>
 		</dependency>
 
 		<dependency>
@@ -109,71 +111,16 @@
 			<artifactId>camel-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-paho</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 	</dependencies>
 
 	<build>
-
-		<pluginManagement>
-			<plugins>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.2.1</version>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
-				</plugin>
-
-			</plugins>
-		</pluginManagement>
-
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-
-				<configuration>
-					<target>1.8</target>
-					<source>1.8</source>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-
-				<configuration>
-					<failOnError>false</failOnError>
-					<additionalparam>-Xdoclint:none</additionalparam>
-				</configuration>
-
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
@@ -181,7 +128,6 @@
 					<reuseForks>false</reuseForks>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 
