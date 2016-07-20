@@ -27,7 +27,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.junit.Test;
 
 /**
- * Unit tests for milo server component which require an actual connection
+ * Unit tests for writing from the client side
  */
 public class WriteClientTest extends AbstractMiloServerTest {
 

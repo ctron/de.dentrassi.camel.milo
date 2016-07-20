@@ -26,7 +26,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 /**
- * Unit tests for milo server component which require an actual connection
+ * Testing monitoring items over multiple connections
  */
 public class MonitorItemMultiConnectionsTest extends AbstractMiloServerTest {
 
