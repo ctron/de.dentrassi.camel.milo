@@ -25,7 +25,7 @@ public final class Messages {
 
 	/**
 	 * Fill a Message from a DataValue
-	 * 
+	 *
 	 * @param value
 	 *            the value to feed from
 	 * @param result
@@ -33,10 +33,6 @@ public final class Messages {
 	 */
 	public static void fillFromDataValue(final DataValue value, final DefaultMessage result) {
 		result.setBody(value);
-		result.setHeader("variantValue", value.getValue().getValue());
-		result.setHeader("statusCode", value.getStatusCode().getValue());
-		result.setHeader("serverTime", value.getServerTime().getJavaDate());
-		result.setHeader("sourceTime", value.getSourceTime().getJavaDate());
 		result.setFault(value.getStatusCode().isBad());
 	}
 }
