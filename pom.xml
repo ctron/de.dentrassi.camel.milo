@@ -11,7 +11,7 @@
 	<groupId>de.dentrassi.camel</groupId>
 	<artifactId>de.dentrassi.camel.milo</artifactId>
 
-	<name>Apache Camel adapter for Eclipse Milo</name>
+	<name>Camel :: Eclipse Milo</name>
 	<description>This is an Apache Camel adapter for OPC UA based on the implementation of Eclipse Milo™</description>
 
 	<inceptionYear>2016</inceptionYear>
