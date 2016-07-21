@@ -56,7 +56,7 @@ public class MiloServerEndpoint extends DefaultEndpoint {
 
 	@Override
 	protected void doStop() throws Exception {
-		if (this.item == null) {
+		if (this.item != null) {
 			this.item.dispose();
 			this.item = null;
 		}
