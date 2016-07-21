@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.milo.server.internal.CamelNamespace;
@@ -74,7 +76,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 			}
 
 		});
-		cfg.setSecurityPolicies(EnumSet.of(SecurityPolicy.None));
+		cfg.setSecurityPolicies(EnumSet.allOf(SecurityPolicy.class));
 
 		DEFAULT_SERVER_CONFIG = cfg.build();
 	}
@@ -234,6 +236,42 @@ public class MiloServerComponent extends UriEndpointComponent {
 	 */
 	public void setServerName(final String serverName) {
 		this.serverConfig.setServerName(serverName);
+	}
+
+	/**
+	 * Security policies
+	 */
+	public void setSecurityPolicies(final Set<SecurityPolicy> securityPolicies) {
+		if (securityPolicies == null || securityPolicies.isEmpty()) {
+			this.serverConfig.setSecurityPolicies(EnumSet.noneOf(SecurityPolicy.class));
+		} else {
+			this.serverConfig.setSecurityPolicies(EnumSet.copyOf(securityPolicies));
+		}
+	}
+
+	/**
+	 * Security policies by URI or name
+	 */
+	public void setSecurityPoliciesById(final Collection<String> securityPolicies) {
+		final EnumSet<SecurityPolicy> policies = EnumSet.noneOf(SecurityPolicy.class);
+
+		if (securityPolicies != null) {
+			for (final String policyName : securityPolicies) {
+				final SecurityPolicy policy = SecurityPolicy.fromUriSafe(policyName)
+						.orElseGet(() -> SecurityPolicy.valueOf(policyName));
+				policies.add(policy);
+			}
+		}
+
+		this.serverConfig.setSecurityPolicies(policies);
+	}
+
+	public void setSecurityPoliciesById(final String... ids) {
+		if (ids != null) {
+			setSecurityPoliciesById(Arrays.asList(ids));
+		} else {
+			setSecurityPoliciesById((Collection<String>) null);
+		}
 	}
 
 	/**
