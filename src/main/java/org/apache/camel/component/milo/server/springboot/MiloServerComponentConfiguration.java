@@ -16,6 +16,9 @@
  */
 package org.apache.camel.component.milo.server.springboot;
 
+import java.util.Collection;
+import java.util.Set;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -55,6 +58,14 @@ public class MiloServerComponentConfiguration {
      * Server name
      */
     private String serverName;
+    /**
+     * Security policies
+     */
+    private Set<SecurityPolicy> securityPolicies;
+    /**
+     * Security policies by URI or name
+     */
+    private Collection<String> securityPoliciesById;
     /**
      * Set user password combinations in the form of user1:pwd1user2:pwd2
      * Usernames and passwords will be URL decoded
@@ -127,6 +138,22 @@ public class MiloServerComponentConfiguration {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public Set<SecurityPolicy> getSecurityPolicies() {
+        return securityPolicies;
+    }
+
+    public void setSecurityPolicies(Set<SecurityPolicy> securityPolicies) {
+        this.securityPolicies = securityPolicies;
+    }
+
+    public Collection<String> getSecurityPoliciesById() {
+        return securityPoliciesById;
+    }
+
+    public void setSecurityPoliciesById(Collection<String> securityPoliciesById) {
+        this.securityPoliciesById = securityPoliciesById;
     }
 
     public String getUserAuthenticationCredentials() {

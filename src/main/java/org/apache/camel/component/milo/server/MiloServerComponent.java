@@ -16,8 +16,12 @@
 
 package org.apache.camel.component.milo.server;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.camel.Endpoint;
+import org.apache.camel.component.milo.KeyStoreLoader;
+import org.apache.camel.component.milo.client.MiloClientConsumer;
 import org.apache.camel.component.milo.server.internal.CamelNamespace;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
@@ -41,17 +48,41 @@ import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.application.CertificateManager;
 import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateManager;
+import org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OPC UA Server based component
  */
 public class MiloServerComponent extends UriEndpointComponent {
+
+	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
+
+	private final static class DenyAllCertificateValidator implements CertificateValidator {
+		public static final CertificateValidator INSTANCE = new DenyAllCertificateValidator();
+
+		private DenyAllCertificateValidator() {
+		}
+
+		@Override
+		public void validate(final X509Certificate certificate) throws UaException {
+			throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
+		}
+
+		@Override
+		public void verifyTrustChain(final X509Certificate certificate, final List<X509Certificate> chain)
+				throws UaException {
+			throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
+		}
+	}
 
 	private static final String URL_CHARSET = "UTF-8";
 
@@ -62,21 +93,11 @@ public class MiloServerComponent extends UriEndpointComponent {
 		final OpcUaServerConfigBuilder cfg = OpcUaServerConfig.builder();
 
 		cfg.setCertificateManager(new DefaultCertificateManager());
-		cfg.setCertificateValidator(new CertificateValidator() {
-
-			@Override
-			public void validate(final X509Certificate certificate) throws UaException {
-				throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
-			}
-
-			@Override
-			public void verifyTrustChain(final X509Certificate certificate, final List<X509Certificate> chain)
-					throws UaException {
-				throw new UaException(StatusCodes.Bad_CertificateUseNotAllowed);
-			}
-
-		});
+		cfg.setCertificateValidator(DenyAllCertificateValidator.INSTANCE);
 		cfg.setSecurityPolicies(EnumSet.allOf(SecurityPolicy.class));
+		cfg.setApplicationName(LocalizedText.english("Apache Camel Milo Server"));
+		cfg.setApplicationUri("urn:org:apache:camel:milo:server");
+		cfg.setProductUri("urn:org:apache:camel:milo");
 
 		DEFAULT_SERVER_CONFIG = cfg.build();
 	}
@@ -95,6 +116,10 @@ public class MiloServerComponent extends UriEndpointComponent {
 	private Map<String, String> userMap;
 
 	private List<String> bindAddresses;
+
+	private Supplier<CertificateValidator> certificateValidator;
+
+	private final List<Runnable> runOnStop = new LinkedList<>();
 
 	public MiloServerComponent() {
 		this(DEFAULT_SERVER_CONFIG);
@@ -155,15 +180,44 @@ public class MiloServerComponent extends UriEndpointComponent {
 			this.serverConfig.setBindAddresses(new ArrayList<>(this.bindAddresses));
 		}
 
+		if (this.certificateValidator != null) {
+			final CertificateValidator validator = this.certificateValidator.get();
+			LOG.debug("Using validator: {}", validator);
+			if (validator instanceof Closeable) {
+				runOnStop(() -> {
+					try {
+						LOG.debug("Closing: {}", validator);
+						((Closeable) validator).close();
+					} catch (final IOException e) {
+						LOG.warn("Failed to close", e);
+					}
+				});
+			}
+			this.serverConfig.setCertificateValidator(validator);
+		}
+
 		// build final configuration
 
 		return this.serverConfig.build();
+	}
+
+	private void runOnStop(final Runnable runnable) {
+		this.runOnStop.add(runnable);
 	}
 
 	@Override
 	protected void doStop() throws Exception {
 		this.server.shutdown();
 		super.doStop();
+
+		this.runOnStop.forEach(runnable -> {
+			try {
+				runnable.run();
+			} catch (final Exception e) {
+				LOG.warn("Failed to run on stop", e);
+			}
+		});
+		this.runOnStop.clear();
 	}
 
 	@Override
@@ -239,6 +293,13 @@ public class MiloServerComponent extends UriEndpointComponent {
 	}
 
 	/**
+	 * Server hostname
+	 */
+	public void setHostname(final String hostname) {
+		this.serverConfig.setHostname(hostname);
+	}
+
+	/**
 	 * Security policies
 	 */
 	public void setSecurityPolicies(final Set<SecurityPolicy> securityPolicies) {
@@ -266,6 +327,9 @@ public class MiloServerComponent extends UriEndpointComponent {
 		this.serverConfig.setSecurityPolicies(policies);
 	}
 
+	/**
+	 * Security policies by URI or name
+	 */
 	public void setSecurityPoliciesById(final String... ids) {
 		if (ids != null) {
 			setSecurityPoliciesById(Arrays.asList(ids));
@@ -324,4 +388,70 @@ public class MiloServerComponent extends UriEndpointComponent {
 	public void setBuildInfo(final BuildInfo buildInfo) {
 		this.serverConfig.setBuildInfo(buildInfo);
 	}
+
+	/**
+	 * Server certificate
+	 */
+	public void setServerCertificate(final KeyStoreLoader.Result result) {
+		/*
+		 * We are not implicitly deactivating the server certificate manager. If
+		 * the key could not be found by the KeyStoreLoader, it will return
+		 * "null" from the load() method.
+		 *
+		 * So if someone calls setServerCertificate ( loader.load () ); he may,
+		 * by accident, disable the server certificate.
+		 *
+		 * If disabling the server certificate is desired, do it explicitly.
+		 */
+		Objects.requireNonNull(result, "Setting a null is not supported. call setCertificateManager(null) instead.)");
+		setServerCertificate(result.getKeyPair(), result.getCertificate());
+	}
+
+	/**
+	 * Server certificate
+	 */
+	public void setServerCertificate(final KeyPair keyPair, final X509Certificate certificate) {
+		setCertificateManager(new DefaultCertificateManager(keyPair, certificate));
+	}
+
+	/**
+	 * Server certificate manager
+	 */
+	public void setCertificateManager(final CertificateManager certificateManager) {
+		if (certificateManager != null) {
+			this.serverConfig.setCertificateManager(certificateManager);
+		} else {
+			this.serverConfig.setCertificateManager(new DefaultCertificateManager());
+		}
+	}
+
+	/**
+	 * Validator for client certificates
+	 */
+	public void setCertificateValidator(final Supplier<CertificateValidator> certificateValidator) {
+		this.certificateValidator = certificateValidator;
+	}
+
+	/**
+	 * Validator for client certificates using default file based approach
+	 */
+	public void setDefaultCertificateValidator(final File certificatesBaseDir) {
+		this.certificateValidator = () -> new DefaultCertificateValidator(certificatesBaseDir);
+	}
+
+	/**
+	 * Validator for client certificates using default file based approach
+	 */
+	public void setDefaultCertificateExistingValidator(final File trustedDir) {
+		throw new UnsupportedOperationException("Can be implemented after fix in upstream");
+
+		/*
+		 * checkDispose(this.certificateValidator);
+		 *
+		 * this.certificateValidator = new
+		 * DefaultCertificateValidator(trustedDir, null, null);
+		 * this.serverConfig.setCertificateValidator(this.certificateValidator);
+		 */
+	}
+
 }

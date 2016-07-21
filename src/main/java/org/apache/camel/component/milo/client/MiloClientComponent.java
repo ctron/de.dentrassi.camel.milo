@@ -16,11 +16,15 @@
 
 package org.apache.camel.component.milo.client;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.camel.Endpoint;
+import org.apache.camel.component.milo.KeyStoreLoader;
+import org.apache.camel.component.milo.KeyStoreLoader.Result;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
@@ -63,7 +67,7 @@ public class MiloClientComponent extends UriEndpointComponent {
 		MiloClientConnection connection = this.cache.get(configuration.toCacheId());
 
 		if (connection == null) {
-			LOG.debug("Cache miss - creating new connection instance: {}", configuration.toCacheId());
+			LOG.info("Cache miss - creating new connection instance: {}", configuration.toCacheId());
 
 			connection = new MiloClientConnection(configuration, mapToClientConfiguration(configuration));
 			this.cache.put(configuration.toCacheId(), connection);
@@ -113,9 +117,38 @@ public class MiloClientComponent extends UriEndpointComponent {
 			builder.setSecureChannelReauthenticationEnabled(configuration.getSecureChannelReauthenticationEnabled());
 		}
 
-		builder.setKeyPair(null);
+		if (configuration.getKeyStoreUrl() != null) {
+			setKey(configuration, builder);
+		}
 
 		return builder;
+	}
+
+	private void setKey(final MiloClientConfiguration configuration, final OpcUaClientConfigBuilder builder) {
+		final KeyStoreLoader loader = new KeyStoreLoader();
+
+		final Result result;
+		try {
+			// key store properties
+			loader.setType(configuration.getKeyStoreType());
+			loader.setUrl(configuration.getKeyStoreUrl());
+			loader.setKeyStorePassword(configuration.getKeyStorePassword());
+
+			// key properties
+			loader.setKeyAlias(configuration.getKeyAlias());
+			loader.setKeyPassword(configuration.getKeyPassword());
+
+			result = loader.load();
+		} catch (GeneralSecurityException | IOException e) {
+			throw new IllegalStateException("Failed to load key", e);
+		}
+
+		if (result == null) {
+			throw new IllegalStateException("Key not found in keystore");
+		}
+
+		builder.setCertificate(result.getCertificate());
+		builder.setKeyPair(result.getKeyPair());
 	}
 
 	private void whenHasText(final Supplier<String> valueSupplier, final Consumer<String> valueConsumer) {

@@ -16,6 +16,7 @@
 
 package org.apache.camel.component.milo.client.internal;
 
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.camel.component.milo.client.MiloClientConfiguration;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
@@ -47,6 +50,7 @@ import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.serialization.xml.XmlEncoder;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
@@ -440,7 +444,18 @@ public class SubscriptionManager {
 
 	private Connected performConnect() throws Exception {
 		final EndpointDescription endpoint = UaTcpStackClient.getEndpoints(this.configuration.getEndpointUri())
-				.thenApply(endpoints -> endpoints[0]).get();
+				.thenApply(endpoints -> {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Found enpoints:");
+						for (final EndpointDescription ep : endpoints) {
+							LOG.debug(toString(ep));
+						}
+					}
+
+					return findEndpoint(endpoints);
+				}).get();
+
+		LOG.debug("Selected endpoint: {}", toString(endpoint));
 
 		final URI uri = URI.create(this.configuration.getEndpointUri());
 
@@ -470,7 +485,6 @@ public class SubscriptionManager {
 		final OpcUaClient client = new OpcUaClient(cfg.build());
 
 		try {
-
 			final UaSubscription manager = client.getSubscriptionManager().createSubscription(1_000.0).get();
 			client.getSubscriptionManager().addSubscriptionListener(new SubscriptionListenerImpl());
 
@@ -482,6 +496,26 @@ public class SubscriptionManager {
 			}
 			throw e;
 		}
+	}
+
+	private EndpointDescription findEndpoint(final EndpointDescription[] endpoints) {
+		EndpointDescription best = null;
+		for (final EndpointDescription ep : endpoints) {
+			if (best == null || ep.getSecurityLevel().compareTo(best.getSecurityLevel()) > 0) {
+				best = ep;
+			}
+		}
+		return best;
+	}
+
+	private String toString(final EndpointDescription ep) {
+		final StringWriter sw = new StringWriter();
+		try {
+			EndpointDescription.encode(ep, new XmlEncoder(sw));
+		} catch (final XMLStreamException e) {
+			return ep.toString();
+		}
+		return sw.toString();
 	}
 
 	protected synchronized void whenConnected(final Worker<Connected> worker) {

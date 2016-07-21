@@ -16,13 +16,17 @@
 
 package org.apache.camel.component.milo.client;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.apache.camel.component.milo.KeyStoreLoader;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 
 @UriParams
 public class MiloClientConfiguration implements Cloneable {
 
-	private static final String DEFAULT_APPLICATION_URI = "http://camel.apache.org/EclipseMilo";
+	private static final String DEFAULT_APPLICATION_URI = "http://camel.apache.org/EclipseMilo/Client";
 
 	private static final String DEFAULT_APPLICATION_NAME = "Apache Camel adapter for Eclipse Milo";
 
@@ -64,10 +68,10 @@ public class MiloClientConfiguration implements Cloneable {
 	private Boolean secureChannelReauthenticationEnabled;
 
 	@UriParam(label = "client")
-	private String keyStoreUrl;
+	private URL keyStoreUrl;
 
 	@UriParam(label = "client")
-	private String keyStoreType = "PKCS";
+	private String keyStoreType = KeyStoreLoader.DEFAULT_KEY_STORE_TYPE;
 
 	@UriParam(label = "client")
 	private String keyAlias;
@@ -221,11 +225,11 @@ public class MiloClientConfiguration implements Cloneable {
 	/**
 	 * The URL where the key should be loaded from
 	 */
-	public void setKeyStoreUrl(final String keyStoreUrl) {
-		this.keyStoreUrl = keyStoreUrl;
+	public void setKeyStoreUrl(final String keyStoreUrl) throws MalformedURLException {
+		this.keyStoreUrl = keyStoreUrl != null ? new URL(keyStoreUrl) : null;
 	}
 
-	public String getKeyStoreUrl() {
+	public URL getKeyStoreUrl() {
 		return this.keyStoreUrl;
 	}
 

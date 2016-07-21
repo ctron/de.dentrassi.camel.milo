@@ -18,6 +18,7 @@ package org.apache.camel.component.milo;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Key;
@@ -26,9 +27,12 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.NoSuchElementException;
 
 public class KeyStoreLoader {
-	private String type = "PKCS12";
+	public static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
+
+	private String type = DEFAULT_KEY_STORE_TYPE;
 	private URL url;
 	private String keyStorePassword;
 	private String keyPassword;
@@ -57,7 +61,7 @@ public class KeyStoreLoader {
 	}
 
 	public void setType(final String type) {
-		this.type = type;
+		this.type = type != null ? type : DEFAULT_KEY_STORE_TYPE;
 	}
 
 	public String getType() {
@@ -70,6 +74,10 @@ public class KeyStoreLoader {
 
 	public URL getUrl() {
 		return this.url;
+	}
+
+	public void setUrl(final String url) throws MalformedURLException {
+		this.url = new URL(url);
 	}
 
 	public void setKeyStorePassword(final String keyStorePassword) {
@@ -104,11 +112,25 @@ public class KeyStoreLoader {
 			keyStore.load(stream, this.keyStorePassword != null ? this.keyStorePassword.toCharArray() : null);
 		}
 
-		final Key privateKey = keyStore.getKey(this.keyAlias,
+		String effectiveKeyAlias = this.keyAlias;
+
+		if (effectiveKeyAlias == null) {
+			if (keyStore.size() != 1) {
+				throw new IllegalArgumentException(
+						"Key store contains more than one key. The use of the 'keyAlias' parameter is required.");
+			}
+			try {
+				effectiveKeyAlias = keyStore.aliases().nextElement();
+			} catch (final NoSuchElementException e) {
+				throw new RuntimeException("Failed to enumerate key alias", e);
+			}
+		}
+
+		final Key privateKey = keyStore.getKey(effectiveKeyAlias,
 				this.keyPassword != null ? this.keyPassword.toCharArray() : null);
 
 		if (privateKey instanceof PrivateKey) {
-			final X509Certificate certificate = (X509Certificate) keyStore.getCertificate(this.keyAlias);
+			final X509Certificate certificate = (X509Certificate) keyStore.getCertificate(effectiveKeyAlias);
 			if (certificate == null) {
 				return null;
 			}

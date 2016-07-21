@@ -10,7 +10,8 @@
     </encoder>
   </appender>
 
-  <logger name="org.apache.camel.component.milo" level="info"/>
+  <logger name="org.apache.camel.component.milo" level="debug"/>
+  <logger name="org.eclipse.milo.opcua.stack.core.application.DefaultCertificateValidator" level="DEBUG"/>
   
   <root level="info">
     <appender-ref ref="STDOUT" />

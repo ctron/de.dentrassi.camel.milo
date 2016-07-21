@@ -16,6 +16,8 @@
 
 package org.apache.camel.component.milo;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.function.Consumer;
 
 import org.apache.camel.CamelContext;
@@ -30,7 +32,8 @@ public abstract class AbstractMiloServerTest extends CamelTestSupport {
 		testBody(clause, DataValue.class, valueConsumer);
 	}
 
-	public static <T> void testBody(final AssertionClause clause, final Class<T> bodyClass, final Consumer<T> valueConsumer) {
+	public static <T> void testBody(final AssertionClause clause, final Class<T> bodyClass,
+			final Consumer<T> valueConsumer) {
 		clause.predicate(exchange -> {
 			final T body = exchange.getIn().getBody(bodyClass);
 			valueConsumer.accept(body);
@@ -54,15 +57,34 @@ public abstract class AbstractMiloServerTest extends CamelTestSupport {
 		return context;
 	}
 
-	protected void configureContext(final CamelContext context) {
+	protected void configureContext(final CamelContext context) throws Exception {
 		final MiloServerComponent server = context.getComponent("milo-server", MiloServerComponent.class);
 		configureMiloServer(server);
 	}
 
-	protected void configureMiloServer(final MiloServerComponent server) {
+	protected void configureMiloServer(final MiloServerComponent server) throws Exception {
 		server.setBindAddresses("localhost");
 		server.setBindPort(12685);
 		server.setUserAuthenticationCredentials("foo:bar,foo2:bar2");
+	}
+
+	/**
+	 * Create a default key store for testing
+	 *
+	 * @return always returns a key store
+	 */
+	protected KeyStoreLoader.Result loadDefaultTestKey() {
+		try {
+
+			final KeyStoreLoader loader = new KeyStoreLoader();
+			loader.setUrl("file:src/test/resources/cert/cert.p12");
+			loader.setKeyStorePassword("pwd1");
+			loader.setKeyPassword("pwd1");
+			return loader.load();
+		} catch (final GeneralSecurityException | IOException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 }
