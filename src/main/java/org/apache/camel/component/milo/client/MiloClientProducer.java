@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class MiloClientProducer extends DefaultProducer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MiloClientConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MiloClientProducer.class);
 
 	private final MiloClientConnection connection;
 
