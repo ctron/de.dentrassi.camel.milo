@@ -16,8 +16,13 @@
  */
 package org.apache.camel.component.milo.server.springboot;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Supplier;
+import org.apache.camel.component.milo.KeyStoreLoader.Result;
+import org.eclipse.milo.opcua.stack.core.application.CertificateManager;
+import org.eclipse.milo.opcua.stack.core.application.CertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -49,15 +54,19 @@ public class MiloServerComponentConfiguration {
     /**
      * The TCP port the server binds to
      */
-    private int bindPort;
+    private Integer bindPort;
     /**
      * Set whether strict endpoint URLs are enforced
      */
-    private Boolean strictEndpointUrlsEnabled = false;
+    private Boolean strictEndpointUrlsEnabled;
     /**
      * Server name
      */
     private String serverName;
+    /**
+     * Server hostname
+     */
+    private String hostname;
     /**
      * Security policies
      */
@@ -74,7 +83,7 @@ public class MiloServerComponentConfiguration {
     /**
      * Enable anonymous authentication disabled by default
      */
-    private Boolean enableAnonymousAuthentication = false;
+    private Boolean enableAnonymousAuthentication;
     /**
      * Set the addresses of the local addresses the server should bind to
      */
@@ -83,6 +92,26 @@ public class MiloServerComponentConfiguration {
      * Server build info
      */
     private BuildInfo buildInfo;
+    /**
+     * Server certificate
+     */
+    private Result serverCertificate;
+    /**
+     * Server certificate manager
+     */
+    private CertificateManager certificateManager;
+    /**
+     * Validator for client certificates
+     */
+    private Supplier<CertificateValidator> certificateValidator;
+    /**
+     * Validator for client certificates using default file based approach
+     */
+    private File defaultCertificateValidator;
+    /**
+     * Validator for client certificates using default file based approach
+     */
+    private File defaultCertificateExistingValidator;
 
     public String getNamespaceUri() {
         return namespaceUri;
@@ -116,11 +145,11 @@ public class MiloServerComponentConfiguration {
         this.productUri = productUri;
     }
 
-    public int getBindPort() {
+    public Integer getBindPort() {
         return bindPort;
     }
 
-    public void setBindPort(int bindPort) {
+    public void setBindPort(Integer bindPort) {
         this.bindPort = bindPort;
     }
 
@@ -138,6 +167,14 @@ public class MiloServerComponentConfiguration {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     public Set<SecurityPolicy> getSecurityPolicies() {
@@ -188,5 +225,47 @@ public class MiloServerComponentConfiguration {
 
     public void setBuildInfo(BuildInfo buildInfo) {
         this.buildInfo = buildInfo;
+    }
+
+    public Result getServerCertificate() {
+        return serverCertificate;
+    }
+
+    public void setServerCertificate(Result serverCertificate) {
+        this.serverCertificate = serverCertificate;
+    }
+
+    public CertificateManager getCertificateManager() {
+        return certificateManager;
+    }
+
+    public void setCertificateManager(CertificateManager certificateManager) {
+        this.certificateManager = certificateManager;
+    }
+
+    public Supplier<CertificateValidator> getCertificateValidator() {
+        return certificateValidator;
+    }
+
+    public void setCertificateValidator(
+            Supplier<CertificateValidator> certificateValidator) {
+        this.certificateValidator = certificateValidator;
+    }
+
+    public File getDefaultCertificateValidator() {
+        return defaultCertificateValidator;
+    }
+
+    public void setDefaultCertificateValidator(File defaultCertificateValidator) {
+        this.defaultCertificateValidator = defaultCertificateValidator;
+    }
+
+    public File getDefaultCertificateExistingValidator() {
+        return defaultCertificateExistingValidator;
+    }
+
+    public void setDefaultCertificateExistingValidator(
+            File defaultCertificateExistingValidator) {
+        this.defaultCertificateExistingValidator = defaultCertificateExistingValidator;
     }
 }

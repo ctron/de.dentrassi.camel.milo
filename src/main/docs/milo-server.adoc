@@ -26,8 +26,9 @@ Messages sent to the endpoint from Camel will be available from the OPC UA serve
 Value write requests from OPC UA Client will trigger messages which are sent into Apache Camel.
 
 
+
 // component options: START
-The OPC UA Server component supports 13 options which are listed below.
+The OPC UA Server component supports 19 options which are listed below.
 
 
 
@@ -42,15 +43,22 @@ The OPC UA Server component supports 13 options which are listed below.
 | bindPort | int | The TCP port the server binds to
 | strictEndpointUrlsEnabled | boolean | Set whether strict endpoint URLs are enforced
 | serverName | String | Server name
+| hostname | String | Server hostname
 | securityPolicies | Set | Security policies
 | securityPoliciesById | String> | Security policies by URI or name
 | userAuthenticationCredentials | String | Set user password combinations in the form of user1:pwd1user2:pwd2 Usernames and passwords will be URL decoded
 | enableAnonymousAuthentication | boolean | Enable anonymous authentication disabled by default
 | bindAddresses | String | Set the addresses of the local addresses the server should bind to
 | buildInfo | BuildInfo | Server build info
+| serverCertificate | Result | Server certificate
+| certificateManager | CertificateManager | Server certificate manager
+| certificateValidator | CertificateValidator> | Validator for client certificates
+| defaultCertificateValidator | File | Validator for client certificates using default file based approach
+| defaultCertificateExistingValidator | File | Validator for client certificates using default file based approach
 |=======================================================================
 {% endraw %}
 // component options: END
+
 
 
 

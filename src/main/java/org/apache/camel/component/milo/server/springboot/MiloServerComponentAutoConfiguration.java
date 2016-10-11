@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(MiloServerComponentConfiguration.class)
 public class MiloServerComponentAutoConfiguration {
 
-    @Bean
+    @Bean(name = "milo-server-component")
     @ConditionalOnClass(CamelContext.class)
     @ConditionalOnMissingBean(MiloServerComponent.class)
     public MiloServerComponent configureMiloServerComponent(
