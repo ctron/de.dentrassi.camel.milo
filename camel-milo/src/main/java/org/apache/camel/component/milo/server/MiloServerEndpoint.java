@@ -31,7 +31,7 @@ import org.apache.camel.spi.UriPath;
  * OPC UA Server based endpoint
  */
 @UriEndpoint(scheme = "milo-server", syntax = "milo-server:itemId[?options]", title = "OPC UA Server", consumerClass = MiloServerConsumer.class, label = "iot")
-public class MiloServerEndpoint extends DefaultEndpoint {
+class MiloServerEndpoint extends DefaultEndpoint {
 
 	@UriPath
 	@Metadata(required = "true")
