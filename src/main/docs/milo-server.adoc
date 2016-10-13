@@ -27,12 +27,12 @@ Value write requests from OPC UA Client will trigger messages which are sent int
 
 
 
+
 // component options: START
 The OPC UA Server component supports 19 options which are listed below.
 
 
 
-{% raw %}
 [width="100%",cols="2s,1m,8",options="header"]
 |=======================================================================
 | Name | Java Type | Description
@@ -56,8 +56,8 @@ The OPC UA Server component supports 19 options which are listed below.
 | defaultCertificateValidator | File | Validator for client certificates using default file based approach
 | defaultCertificateExistingValidator | File | Validator for client certificates using default file based approach
 |=======================================================================
-{% endraw %}
 // component options: END
+
 
 
 
@@ -80,10 +80,10 @@ URI options
 ^^^^^^^^^^^
 
 
+
 // endpoint options: START
 The OPC UA Server component supports 5 endpoint options which are listed below:
 
-{% raw %}
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
 | Name | Group | Default | Java Type | Description
@@ -93,8 +93,8 @@ The OPC UA Server component supports 5 endpoint options which are listed below:
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 |=======================================================================
-{% endraw %}
 // endpoint options: END
+
 
 
 
