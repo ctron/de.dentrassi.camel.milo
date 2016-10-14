@@ -44,7 +44,7 @@
 			<plugin>
 				<groupId>org.apache.karaf.tooling</groupId>
 				<artifactId>karaf-maven-plugin</artifactId>
-				<version>${apache-karaf-version}</version>
+				<version>${apache-karaf-plugin-version}</version>
 				<extensions>true</extensions>
                 <executions>
                     <execution>
