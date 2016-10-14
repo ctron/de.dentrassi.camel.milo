@@ -81,7 +81,7 @@
 
 	<modules>
 		<module>camel-milo</module>
-		<module>karaf</module>
+		<module>features/milo</module>
 	</modules>
 
 	<dependencyManagement>

@@ -9,13 +9,14 @@
 		<groupId>de.dentrassi.camel.milo</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>..</relativePath>
+		<relativePath>../..</relativePath>
 	</parent>
     
-	<artifactId>karaf</artifactId>
+    <groupId>de.dentrassi.camel.milo.karaf</groupId>
+	<artifactId>milo</artifactId>
 	<packaging>kar</packaging>
 	
-	<name>Camel :: Eclipse Milo :: Karaf Feature</name>
+	<name>Eclipse Milo :: Karaf Feature</name>
 
     <dependencies>
 
