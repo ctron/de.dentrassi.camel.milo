@@ -6,6 +6,10 @@
       http://www.osgi.org/xmlns/blueprint/v1.0.0
       http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+    <bean id="milo-server" class="org.apache.camel.component.milo.server.MiloServerComponent">
+        <property name="enableAnonymousAuthentication" value="true"/>
+    </bean>
+
     <camelContext xmlns="http://camel.apache.org/schema/blueprint">
       <route id="milo1">
         <from uri="paho:javaonedemo/eclipse-greenhouse-9home/sensors/temperature?brokerUrl=tcp://iot.eclipse.org:1883"/>
