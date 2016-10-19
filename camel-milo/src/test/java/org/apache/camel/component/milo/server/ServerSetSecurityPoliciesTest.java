@@ -16,7 +16,6 @@
 
 package org.apache.camel.component.milo.server;
 
-import org.apache.camel.component.milo.server.MiloServerComponent;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
@@ -46,6 +45,6 @@ public class ServerSetSecurityPoliciesTest extends CamelTestSupport {
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetSecurityPolicies4() {
 		final MiloServerComponent component = new MiloServerComponent();
-		component.setSecurityPoliciesById("Is just made that up");
+		component.setSecurityPoliciesById("I just made that up");
 	}
 }
