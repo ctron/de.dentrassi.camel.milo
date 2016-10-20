@@ -13,7 +13,7 @@
 	</parent>
     
     <groupId>de.dentrassi.camel.milo.examples</groupId>
-	<artifactId>milo1</artifactId>
+	<artifactId>milo-example1</artifactId>
 	<packaging>bundle</packaging>
 	
 	<name>Eclipse Milo :: Examples :: Milo 1 - Blueprint</name>
