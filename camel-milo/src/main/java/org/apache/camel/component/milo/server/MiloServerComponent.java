@@ -16,6 +16,9 @@
 
 package org.apache.camel.component.milo.server;
 
+import static java.util.Collections.singletonList;
+import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +47,7 @@ import org.apache.camel.impl.UriEndpointComponent;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
+import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
@@ -98,6 +102,11 @@ public class MiloServerComponent extends UriEndpointComponent {
 		cfg.setApplicationName(LocalizedText.english("Apache Camel Milo Server"));
 		cfg.setApplicationUri("urn:org:apache:camel:milo:server");
 		cfg.setProductUri("urn:org:apache:camel:milo");
+
+		if (Boolean.getBoolean("org.apache.camel.milo.server.default.enableAnonymous")) {
+			cfg.setUserTokenPolicies(singletonList(USER_TOKEN_POLICY_ANONYMOUS));
+			cfg.setIdentityValidator(new AnonymousIdentityValidator());
+		}
 
 		DEFAULT_SERVER_CONFIG = cfg.build();
 	}
