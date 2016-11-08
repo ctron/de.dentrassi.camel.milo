@@ -146,11 +146,11 @@ public class WriteClientTest extends AbstractMiloServerTest {
 		sendValue(this.producer4, new Variant("Foo4"));
 
 		// assert
-		this.assertMockEndpointsSatisfied();
+		assertMockEndpointsSatisfied();
 	}
 
 	private static void sendValue(final ProducerTemplate producerTemplate, final Variant variant) {
-		// we always write synchronously since we do need the mesage order
+		// we always write synchronously since we do need the message order
 		producerTemplate.sendBodyAndHeader(variant, "await", true);
 	}
 }
