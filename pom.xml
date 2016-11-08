@@ -21,6 +21,9 @@
 			<id>ctron</id>
 			<name>Jens Reimann</name>
 			<email>jreimann@redhat.com</email>
+            
+            <organization>Red Hat</organization>
+            <organizationUrl>http://redhat.com</organizationUrl>
 		</developer>
 	</developers>
 
@@ -40,6 +43,7 @@
 	<properties>
 		<eclipse-milo-version>0.1.0-SNAPSHOT</eclipse-milo-version>
 		<apache-camel-version>2.17.0</apache-camel-version>
+        <apache-camel-plugin-version>2.17.3</apache-camel-plugin-version>
 		<slf4j-version>1.7.0</slf4j-version>
 		<logback-version>1.1.7</logback-version>
         <apache-karaf-version>4.0.0</apache-karaf-version>
@@ -156,7 +160,13 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.19.1</version>
 				</plugin>
-
+                
+                <plugin>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-package-maven-plugin</artifactId>
+                    <version>${apache-camel-plugin-version}</version>
+                </plugin>
+                
 			</plugins>
 		</pluginManagement>
 	</build>
