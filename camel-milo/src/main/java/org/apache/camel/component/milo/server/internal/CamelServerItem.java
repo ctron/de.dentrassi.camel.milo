@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
-import org.eclipse.milo.opcua.sdk.server.api.UaNodeManager;
+import org.eclipse.milo.opcua.sdk.server.api.ServerNodeMap;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaObjectNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaVariableNode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -48,7 +48,7 @@ public class CamelServerItem {
 	private DataValue value = new DataValue(StatusCode.BAD);
 	private final Set<Consumer<DataValue>> listeners = new CopyOnWriteArraySet<>();
 
-	public CamelServerItem(final String itemId, final UaNodeManager nodeManager, final UShort namespaceIndex,
+	public CamelServerItem(final String itemId, final ServerNodeMap nodeManager, final UShort namespaceIndex,
 			final UaObjectNode baseNode) {
 
 		this.baseNode = baseNode;

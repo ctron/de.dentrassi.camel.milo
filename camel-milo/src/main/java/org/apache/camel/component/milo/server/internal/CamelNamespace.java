@@ -28,9 +28,10 @@ import org.eclipse.milo.opcua.sdk.server.api.AccessContext;
 import org.eclipse.milo.opcua.sdk.server.api.DataItem;
 import org.eclipse.milo.opcua.sdk.server.api.MonitoredItem;
 import org.eclipse.milo.opcua.sdk.server.api.Namespace;
-import org.eclipse.milo.opcua.sdk.server.api.UaNodeManager;
+import org.eclipse.milo.opcua.sdk.server.api.ServerNodeMap;
+import org.eclipse.milo.opcua.sdk.server.nodes.AttributeContext;
+import org.eclipse.milo.opcua.sdk.server.nodes.ServerNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaFolderNode;
-import org.eclipse.milo.opcua.sdk.server.nodes.UaNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaObjectNode;
 import org.eclipse.milo.opcua.sdk.server.util.SubscriptionModel;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
@@ -60,9 +61,7 @@ public class CamelNamespace implements Namespace {
 
 	private final String namespaceUri;
 
-	private final OpcUaServer server;
-
-	private final UaNodeManager nodeManager;
+	private final ServerNodeMap nodeManager;
 	private final SubscriptionModel subscriptionModel;
 
 	private final UaFolderNode folder;
@@ -73,9 +72,8 @@ public class CamelNamespace implements Namespace {
 	public CamelNamespace(final UShort namespaceIndex, final String namespaceUri, final OpcUaServer server) {
 		this.namespaceIndex = namespaceIndex;
 		this.namespaceUri = namespaceUri;
-		this.server = server;
 
-		this.nodeManager = server.getNodeManager();
+		this.nodeManager = server.getNodeMap();
 		this.subscriptionModel = new SubscriptionModel(server, this);
 
 		// create structure
@@ -119,7 +117,7 @@ public class CamelNamespace implements Namespace {
 
 	@Override
 	public CompletableFuture<List<Reference>> browse(final AccessContext context, final NodeId nodeId) {
-		final UaNode node = this.nodeManager.get(nodeId);
+		final ServerNode node = this.nodeManager.get(nodeId);
 
 		if (node != null) {
 			return CompletableFuture.completedFuture(node.getReferences());
@@ -136,10 +134,16 @@ public class CamelNamespace implements Namespace {
 		final List<DataValue> results = Lists.newArrayListWithCapacity(readValueIds.size());
 
 		for (final ReadValueId id : readValueIds) {
-			final UaNode node = this.nodeManager.get(id.getNodeId());
+			final ServerNode node = this.nodeManager.get(id.getNodeId());
 
-			final DataValue value = node != null ? node.readAttribute(id.getAttributeId().intValue())
-					: new DataValue(StatusCodes.Bad_NodeIdUnknown);
+			final DataValue value;
+
+			if (node != null) {
+				value = node.readAttribute(new AttributeContext(context), id.getAttributeId(), timestamps,
+						id.getIndexRange());
+			} else {
+				value = new DataValue(StatusCodes.Bad_NodeIdUnknown);
+			}
 
 			results.add(value);
 		}
@@ -153,11 +157,11 @@ public class CamelNamespace implements Namespace {
 
 		for (final WriteValue writeValue : writeValues) {
 			try {
-				final UaNode node = this.nodeManager.getNode(writeValue.getNodeId())
+				final ServerNode node = this.nodeManager.getNode(writeValue.getNodeId())
 						.orElseThrow(() -> new UaException(StatusCodes.Bad_NodeIdUnknown));
 
-				node.writeAttribute(this.server.getNamespaceManager(), writeValue.getAttributeId().intValue(),
-						writeValue.getValue(), writeValue.getIndexRange());
+				node.writeAttribute(new AttributeContext(context), writeValue.getAttributeId(), writeValue.getValue(),
+						writeValue.getIndexRange());
 
 				if (LOG.isTraceEnabled()) {
 					final Variant variant = writeValue.getValue().getValue();
