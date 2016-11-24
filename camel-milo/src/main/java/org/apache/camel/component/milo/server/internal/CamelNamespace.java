@@ -24,13 +24,14 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.camel.component.milo.client.MiloClientConsumer;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
+import org.eclipse.milo.opcua.sdk.server.api.AccessContext;
 import org.eclipse.milo.opcua.sdk.server.api.DataItem;
 import org.eclipse.milo.opcua.sdk.server.api.MonitoredItem;
 import org.eclipse.milo.opcua.sdk.server.api.Namespace;
 import org.eclipse.milo.opcua.sdk.server.api.UaNodeManager;
-import org.eclipse.milo.opcua.sdk.server.model.UaFolderNode;
-import org.eclipse.milo.opcua.sdk.server.model.UaNode;
-import org.eclipse.milo.opcua.sdk.server.model.UaObjectNode;
+import org.eclipse.milo.opcua.sdk.server.nodes.UaFolderNode;
+import org.eclipse.milo.opcua.sdk.server.nodes.UaNode;
+import org.eclipse.milo.opcua.sdk.server.nodes.UaObjectNode;
 import org.eclipse.milo.opcua.sdk.server.util.SubscriptionModel;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
@@ -117,7 +118,7 @@ public class CamelNamespace implements Namespace {
 	}
 
 	@Override
-	public CompletableFuture<List<Reference>> getReferences(final NodeId nodeId) {
+	public CompletableFuture<List<Reference>> browse(final AccessContext context, final NodeId nodeId) {
 		final UaNode node = this.nodeManager.get(nodeId);
 
 		if (node != null) {

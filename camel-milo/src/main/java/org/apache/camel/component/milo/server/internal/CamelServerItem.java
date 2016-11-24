@@ -26,8 +26,8 @@ import java.util.function.Consumer;
 
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.server.api.UaNodeManager;
-import org.eclipse.milo.opcua.sdk.server.model.UaObjectNode;
-import org.eclipse.milo.opcua.sdk.server.model.UaVariableNode;
+import org.eclipse.milo.opcua.sdk.server.nodes.UaObjectNode;
+import org.eclipse.milo.opcua.sdk.server.nodes.UaVariableNode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;

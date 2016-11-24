@@ -105,7 +105,7 @@ public class MiloServerComponent extends UriEndpointComponent {
 
 		if (Boolean.getBoolean("org.apache.camel.milo.server.default.enableAnonymous")) {
 			cfg.setUserTokenPolicies(singletonList(USER_TOKEN_POLICY_ANONYMOUS));
-			cfg.setIdentityValidator(new AnonymousIdentityValidator());
+			cfg.setIdentityValidator(AnonymousIdentityValidator.INSTANCE);
 		}
 
 		DEFAULT_SERVER_CONFIG = cfg.build();
