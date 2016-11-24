@@ -35,7 +35,7 @@
         <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
         <bundle dependency="true">mvn:org.javassist/javassist/3.19.0-GA</bundle>
         
-        <bundle dependency="true">mvn:com.codepoetics/protonpack/1.8</bundle>
+        <bundle dependency="true">mvn:com.codepoetics/protonpack/1.10</bundle>
     </feature>
     
     <feature name="camel-milo" version="${project.version}">
