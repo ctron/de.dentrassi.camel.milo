@@ -1,165 +1,165 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.dentrassi.camel.milo</groupId>
-	<artifactId>parent</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+    <groupId>de.dentrassi.camel.milo</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-	<name>Camel :: Eclipse Milo (Parent)</name>
-	<description>This is an Apache Camel adapter for OPC UA, based on the implementation of Eclipse Milo™</description>
+    <name>Camel :: Eclipse Milo (Parent)</name>
+    <description>This is an Apache Camel adapter for OPC UA, based on the implementation of Eclipse Milo™</description>
 
-	<url>https://dentrassi.de/camel-milo</url>
+    <url>https://dentrassi.de/camel-milo</url>
 
-	<inceptionYear>2016</inceptionYear>
+    <inceptionYear>2016</inceptionYear>
 
-	<developers>
-		<developer>
-			<id>ctron</id>
-			<name>Jens Reimann</name>
-			<email>jreimann@redhat.com</email>
-            
+    <developers>
+        <developer>
+            <id>ctron</id>
+            <name>Jens Reimann</name>
+            <email>jreimann@redhat.com</email>
+
             <organization>Red Hat</organization>
             <organizationUrl>http://redhat.com</organizationUrl>
-		</developer>
-	</developers>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:git://github.com/ctron/de.dentrassi.camel.milo</connection>
-		<url>https://github.com/ctron/de.dentrassi.camel.milo</url>
-	</scm>
+    <scm>
+        <connection>scm:git:git://github.com/ctron/de.dentrassi.camel.milo</connection>
+        <url>https://github.com/ctron/de.dentrassi.camel.milo</url>
+    </scm>
 
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-	<properties>
-		<eclipse-milo-version>0.1.0-SNAPSHOT</eclipse-milo-version>
-		<apache-camel-version>2.17.0</apache-camel-version>
+    <properties>
+        <eclipse-milo-version>0.1.0-SNAPSHOT</eclipse-milo-version>
+        <apache-camel-version>2.17.0</apache-camel-version>
         <apache-camel-plugin-version>2.17.3</apache-camel-plugin-version>
-		<slf4j-version>1.7.0</slf4j-version>
-		<logback-version>1.1.7</logback-version>
+        <slf4j-version>1.7.0</slf4j-version>
+        <logback-version>1.1.7</logback-version>
         <apache-karaf-version>4.0.0</apache-karaf-version>
         <apache-karaf-plugin-version>4.0.7</apache-karaf-plugin-version>
-		
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<repositories>
+    <repositories>
 
-		<repository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-		</repository>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
 
-		<!-- enable snapshots for milo -->
-		<repository>
-			<id>oss-sonatype</id>
-			<name>oss-sonatype</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+        <!-- enable snapshots for milo -->
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
-	<modules>
-		<module>camel-milo</module>
-		<module>features/milo</module>
-	</modules>
+    <modules>
+        <module>camel-milo</module>
+        <module>features/milo</module>
+    </modules>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-core</artifactId>
-				<version>${apache-camel-version}</version>
-			</dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core</artifactId>
+                <version>${apache-camel-version}</version>
+            </dependency>
 
-			<dependency>
-				<groupId>org.eclipse.milo</groupId>
-				<artifactId>sdk-server</artifactId>
-				<version>${eclipse-milo-version}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.eclipse.milo</groupId>
+                <artifactId>sdk-server</artifactId>
+                <version>${eclipse-milo-version}</version>
+            </dependency>
 
-			<dependency>
-				<groupId>org.eclipse.milo</groupId>
-				<artifactId>sdk-client</artifactId>
-				<version>${eclipse-milo-version}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.eclipse.milo</groupId>
+                <artifactId>sdk-client</artifactId>
+                <version>${eclipse-milo-version}</version>
+            </dependency>
 
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${slf4j-version}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
 
-			<!-- Testing dependencies -->
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>${logback-version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-test</artifactId>
-				<version>${apache-camel-version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-paho</artifactId>
-				<version>${apache-camel-version}</version>
-				<scope>test</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+            <!-- Testing dependencies -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-test</artifactId>
+                <version>${apache-camel-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-paho</artifactId>
+                <version>${apache-camel-version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
-					</configuration>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.apache.felix</groupId>
-					<artifactId>maven-bundle-plugin</artifactId>
-					<version>3.2.0</version>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
-				</plugin>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
                 
                 <plugin>
                     <groupId>org.apache.camel</groupId>
@@ -167,8 +167,8 @@
                     <version>${apache-camel-plugin-version}</version>
                 </plugin>
                 
-			</plugins>
-		</pluginManagement>
-	</build>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
