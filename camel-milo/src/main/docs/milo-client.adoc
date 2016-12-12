@@ -82,6 +82,7 @@ In other words, shared connections located by the combination of endpoint URI an
 
 
 
+
 // endpoint options: START
 The Milo based OPC UA Client component supports 27 endpoint options which are listed below:
 
@@ -91,10 +92,10 @@ The Milo based OPC UA Client component supports 27 endpoint options which are li
 | endpointUri | common |  | String | *Required* The OPC UA server endpoint
 | clientId | common |  | String | A virtual client id to force the creation of a new connection instance
 | defaultAwaitWrites | common | false | boolean | Default await setting for writes
-| namespaceIndex | common |  | Integer | The namespace as index
-| namespaceUri | common |  | String | The namespace as URI
+| namespaceIndex | common |  | Integer | The namespace as inde deprecatedx
+| namespaceUri | common |  | String | The namespace as URI deprecated
 | node | common |  | ExpandedNodeId | The node definition (see Node ID)
-| nodeId | common |  | String | The node ID as string ID
+| nodeId | common |  | String | The node ID as string ID deprecated
 | samplingInterval | common |  | Double | The sampling interval in milliseconds
 | bridgeErrorHandler | consumer | false | boolean | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
@@ -117,6 +118,7 @@ The Milo based OPC UA Client component supports 27 endpoint options which are li
 | sessionTimeout | client |  | Long | Session timeout in milliseconds
 |=======================================================================
 // endpoint options: END
+
 
 
 
