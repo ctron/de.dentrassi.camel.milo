@@ -68,6 +68,12 @@ public class NodeIdTest extends AbstractMiloServerTest {
 				+ urlFormParameterEscaper().escape(s), ushort(1), uint(2));
 	}
 
+	@Test
+	public void testDocURL() {
+		testUri("milo-client://user:password@localhost:12345?node=RAW(nsu=http://foo.bar;s=foo/bar)", "http://foo.bar",
+				"foo/bar");
+	}
+
 	@Test(expected = ResolveEndpointFailedException.class)
 	public void testMixed() {
 		// This must fail since "node" is incomplete

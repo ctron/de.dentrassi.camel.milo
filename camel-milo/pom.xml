@@ -99,10 +99,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Service>
-                        org.apache.camel.spi.ComponentResolver;component=milo-server,
-                        org.apache.camel.spi.ComponentResolver;component=milo-client
-                        </Export-Service>
+                        <Export-Service>${camel.osgi.export.service}</Export-Service>
                     </instructions>
                 </configuration>
             </plugin>
@@ -145,5 +142,27 @@
 
         </plugins>
     </build>
+    
+    <profiles>
+        <!-- enables the APT dependency so that it can be disabled in IDE builds -->
+        <profile>
+            <id>apt</id>
+            <activation>
+                <property>
+                    <name>!dummy.prop.to.keep.this.profile.active.even.when.other.profiles.are.active</name>
+                </property>
+            </activation>
+
+            <dependencies>
+                <!-- enable Camel APT processors -->
+                <dependency>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>apt</artifactId>
+                    <version>${apache-camel-plugin-version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

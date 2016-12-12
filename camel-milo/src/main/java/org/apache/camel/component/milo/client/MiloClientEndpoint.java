@@ -43,29 +43,35 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	private final String endpointUri;
 
 	/**
-	 * The the node ID
+	 * The node ID as string ID **deprecated**
+	 *
+	 * @deprecated Use "node" instead
 	 */
 	@UriParam
 	@Deprecated
 	private String nodeId;
 
 	/**
-	 * The namespace as URI
+	 * The namespace as URI **deprecated**
+	 *
+	 * @deprecated Use "node" instead
 	 */
 	@UriParam
 	@Deprecated
 	private String namespaceUri;
 
 	/**
-	 * The namespace as index
-	 * <p>
-	 * This is an alias for "ns"
-	 * </p>
+	 * The namespace as numeric index **deprecated**
+	 *
+	 * @deprecated Use "node" instead
 	 */
 	@UriParam
 	@Deprecated
 	private Integer namespaceIndex;
 
+	/**
+	 * The node definition (see Node ID)
+	 */
 	@UriParam
 	private ExpandedNodeId node;
 
