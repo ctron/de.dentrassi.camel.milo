@@ -19,6 +19,8 @@ package org.apache.camel.component.milo.client;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.component.milo.NamespaceId;
+import org.apache.camel.component.milo.PartialNodeId;
 import org.apache.camel.impl.DefaultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,9 @@ public class MiloClientProducer extends DefaultProducer {
 
 	private final MiloClientConnection connection;
 
-	private final MiloClientItemConfiguration configuration;
+	private final NamespaceId namespaceId;
+
+	private final PartialNodeId partialNodeId;
 
 	private final boolean defaultAwaitWrites;
 
@@ -38,8 +42,10 @@ public class MiloClientProducer extends DefaultProducer {
 		super(endpoint);
 
 		this.connection = connection;
-		this.configuration = configuration;
 		this.defaultAwaitWrites = defaultAwaitWrites;
+
+		this.namespaceId = configuration.makeNamespaceId();
+		this.partialNodeId = configuration.makePartialNodeId();
 	}
 
 	@Override
@@ -51,8 +57,7 @@ public class MiloClientProducer extends DefaultProducer {
 
 		final Boolean await = msg.getHeader("await", this.defaultAwaitWrites, Boolean.class);
 
-		this.connection.writeValue(this.configuration.getNamespaceUri(), this.configuration.getNamespaceIndex(),
-				this.configuration.getNodeId(), value, await != null ? await : false);
+		this.connection.writeValue(this.namespaceId, this.partialNodeId, value, await != null ? await : false);
 	}
 
 }

@@ -16,16 +16,21 @@
 
 package org.apache.camel.component.milo.client;
 
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.ushort;
+
 import java.util.Objects;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.component.milo.NamespaceId;
+import org.apache.camel.component.milo.PartialNodeId;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 
 @UriEndpoint(scheme = "milo-client", syntax = "milo-client:tcp://user:password@host:port/path/to/service?itemId=item.id&namespaceUri=urn:foo:bar", title = "Milo based OPC UA Client", consumerClass = MiloClientConsumer.class, label = "iot")
 public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientItemConfiguration {
@@ -41,23 +46,28 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	 * The the node ID
 	 */
 	@UriParam
-	@Metadata(required = "true")
+	@Deprecated
 	private String nodeId;
 
 	/**
-	 * The node ID namespace URI
+	 * The namespace as URI
 	 */
 	@UriParam
+	@Deprecated
 	private String namespaceUri;
 
 	/**
-	 * The index of the namespace.
+	 * The namespace as index
 	 * <p>
-	 * Can be used as an alternative to the "namespaceUri"
+	 * This is an alias for "ns"
 	 * </p>
 	 */
 	@UriParam
+	@Deprecated
 	private Integer namespaceIndex;
+
+	@UriParam
+	private ExpandedNodeId node;
 
 	/**
 	 * The sampling interval in milliseconds
@@ -75,7 +85,7 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	 * Default "await" setting for writes
 	 */
 	@UriParam
-	boolean defaultAwaitWrites = false;
+	private boolean defaultAwaitWrites = false;
 
 	private final MiloClientConnection connection;
 	private final MiloClientComponent component;
@@ -127,6 +137,46 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 	// item configuration
 
 	@Override
+	public PartialNodeId makePartialNodeId() {
+		PartialNodeId result = null;
+
+		if (this.node != null) {
+			result = PartialNodeId.fromExpandedNodeId(this.node);
+		}
+
+		if (result == null && this.nodeId != null) {
+			result = new PartialNodeId(this.nodeId);
+		}
+
+		if (result == null) {
+			throw new IllegalStateException("Missing or invalid node id configuration");
+		} else {
+			return result;
+		}
+	}
+
+	@Override
+	public NamespaceId makeNamespaceId() {
+		NamespaceId result = null;
+
+		if (this.node != null) {
+			result = NamespaceId.fromExpandedNodeId(this.node);
+		}
+
+		if (result == null && this.namespaceIndex != null) {
+			result = new NamespaceId(ushort(this.namespaceIndex));
+		}
+		if (result == null && this.namespaceUri != null) {
+			result = new NamespaceId(this.namespaceUri);
+		}
+
+		if (result == null) {
+			throw new IllegalStateException("Missing or invalid node id configuration");
+		} else {
+			return result;
+		}
+	}
+
 	public String getNodeId() {
 		return this.nodeId;
 	}
@@ -135,7 +185,6 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 		this.nodeId = nodeId;
 	}
 
-	@Override
 	public String getNamespaceUri() {
 		return this.namespaceUri;
 	}
@@ -144,13 +193,28 @@ public class MiloClientEndpoint extends DefaultEndpoint implements MiloClientIte
 		this.namespaceUri = namespaceUri;
 	}
 
-	@Override
 	public Integer getNamespaceIndex() {
 		return this.namespaceIndex;
 	}
 
 	public void setNamespaceIndex(final int namespaceIndex) {
 		this.namespaceIndex = namespaceIndex;
+	}
+
+	public void setNode(final String node) {
+		if (node == null) {
+			this.node = null;
+		} else {
+			this.node = ExpandedNodeId.parse(node);
+		}
+	}
+
+	public String getNode() {
+		if (this.node != null) {
+			return this.node.toParseableString();
+		} else {
+			return null;
+		}
 	}
 
 	@Override

@@ -16,9 +16,12 @@
 
 package org.apache.camel.component.milo.client;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
+
 import java.util.function.Consumer;
 
+import org.apache.camel.component.milo.NamespaceId;
+import org.apache.camel.component.milo.PartialNodeId;
 import org.apache.camel.component.milo.client.internal.SubscriptionManager;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.stack.core.Stack;
@@ -38,7 +41,7 @@ public class MiloClientConnection implements AutoCloseable {
 
 	public MiloClientConnection(final MiloClientConfiguration configuration,
 			final OpcUaClientConfigBuilder clientConfiguration) {
-		Objects.requireNonNull(configuration);
+		requireNonNull(configuration);
 
 		// make a copy since the configuration is mutable
 		this.configuration = configuration.clone();
@@ -71,6 +74,7 @@ public class MiloClientConnection implements AutoCloseable {
 		this.initialized = true;
 	}
 
+	@FunctionalInterface
 	public interface MonitorHandle {
 		public void unregister();
 	}
@@ -78,33 +82,29 @@ public class MiloClientConnection implements AutoCloseable {
 	public MonitorHandle monitorValue(final MiloClientItemConfiguration configuration,
 			final Consumer<DataValue> valueConsumer) {
 
-		Objects.requireNonNull(configuration);
-		Objects.requireNonNull(valueConsumer);
+		requireNonNull(configuration);
+		requireNonNull(valueConsumer);
 
 		checkInit();
 
-		final UInteger handle = this.manager.registerItem(configuration.getNamespaceUri(),
-				configuration.getNamespaceIndex(), configuration.getNodeId(), configuration.getSamplingInterval(),
-				valueConsumer);
+		final NamespaceId namespaceId = configuration.makeNamespaceId();
+		final PartialNodeId partialNodeId = configuration.makePartialNodeId();
 
-		return new MonitorHandle() {
+		final UInteger handle = this.manager.registerItem(namespaceId, partialNodeId,
+				configuration.getSamplingInterval(), valueConsumer);
 
-			@Override
-			public void unregister() {
-				MiloClientConnection.this.manager.unregisterItem(handle);
-			}
-		};
+		return () -> MiloClientConnection.this.manager.unregisterItem(handle);
 	}
 
 	public String getConnectionId() {
 		return this.configuration.toCacheId();
 	}
 
-	public void writeValue(final String namespaceUri, final Integer namespaceIndex, final String item,
-			final Object value, final boolean await) {
+	public void writeValue(final NamespaceId namespaceId, final PartialNodeId partialNodeId, final Object value,
+			final boolean await) {
 		checkInit();
 
-		this.manager.write(namespaceUri, namespaceIndex, item, mapValue(value), await);
+		this.manager.write(namespaceId, partialNodeId, mapValue(value), await);
 	}
 
 	/**

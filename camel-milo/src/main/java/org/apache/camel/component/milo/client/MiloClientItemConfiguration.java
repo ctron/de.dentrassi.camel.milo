@@ -16,12 +16,13 @@
 
 package org.apache.camel.component.milo.client;
 
+import org.apache.camel.component.milo.NamespaceId;
+import org.apache.camel.component.milo.PartialNodeId;
+
 public interface MiloClientItemConfiguration {
-	public String getNodeId();
+	public NamespaceId makeNamespaceId();
 
-	public String getNamespaceUri();
-
-	public Integer getNamespaceIndex();
+	public PartialNodeId makePartialNodeId();
 
 	public Double getSamplingInterval();
 }

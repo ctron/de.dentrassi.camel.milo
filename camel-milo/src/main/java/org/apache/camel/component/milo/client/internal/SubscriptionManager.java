@@ -35,6 +35,8 @@ import java.util.function.Consumer;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.camel.component.milo.NamespaceId;
+import org.apache.camel.component.milo.PartialNodeId;
 import org.apache.camel.component.milo.client.MiloClientConfiguration;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
@@ -106,32 +108,26 @@ public class SubscriptionManager {
 	}
 
 	private static class Subscription {
-		private final String namespaceUri;
-		private final Integer namespaceIndex;
-		private final String itemId;
+		private final NamespaceId namespaceId;
+		private final PartialNodeId partialNodeId;
 		private final Double samplingInterval;
 
 		private final Consumer<DataValue> valueConsumer;
 
-		public Subscription(final String namespaceUri, final Integer namespaceIndex, final String itemId,
+		public Subscription(final NamespaceId namespaceId, final PartialNodeId partialNodeId,
 				final Double samplingInterval, final Consumer<DataValue> valueConsumer) {
-			this.namespaceUri = namespaceUri;
-			this.namespaceIndex = namespaceIndex;
-			this.itemId = itemId;
+			this.namespaceId = namespaceId;
+			this.partialNodeId = partialNodeId;
 			this.samplingInterval = samplingInterval;
 			this.valueConsumer = valueConsumer;
 		}
 
-		public String getNamespaceUri() {
-			return this.namespaceUri;
+		public NamespaceId getNamespaceId() {
+			return this.namespaceId;
 		}
 
-		public Integer getNamespaceIndex() {
-			return this.namespaceIndex;
-		}
-
-		public String getItemId() {
-			return this.itemId;
+		public PartialNodeId getPartialNodeId() {
+			return this.partialNodeId;
 		}
 
 		public Double getSamplingInterval() {
@@ -171,17 +167,17 @@ public class SubscriptionManager {
 			for (final Map.Entry<UInteger, Subscription> entry : subscriptions.entrySet()) {
 				final Subscription s = entry.getValue();
 
-				final UShort namespaceIndex;
-				if (s.getNamespaceIndex() != null) {
-					namespaceIndex = Unsigned.ushort(s.getNamespaceIndex());
+				UShort namespaceIndex;
+				if (s.getNamespaceId().isNumeric()) {
+					namespaceIndex = s.getNamespaceId().getNumeric();
 				} else {
-					namespaceIndex = lookupNamespace(s.getNamespaceUri());
+					namespaceIndex = lookupNamespace(s.getNamespaceId().getUri());
 				}
 
 				if (namespaceIndex == null) {
 					handleSubscriptionError(new StatusCode(StatusCodes.Bad_InvalidArgument), entry.getKey(), s);
 				} else {
-					final NodeId nodeId = new NodeId(namespaceIndex, s.getItemId());
+					final NodeId nodeId = s.getPartialNodeId().toNodeId(namespaceIndex);
 					final ReadValueId itemId = new ReadValueId(nodeId, AttributeId.Value.uid(), null,
 							QualifiedName.NULL_VALUE);
 					final MonitoringParameters parameters = new MonitoringParameters(entry.getKey(),
@@ -190,18 +186,16 @@ public class SubscriptionManager {
 				}
 			}
 
-			if (!items.isEmpty()) {
+			if (!items.isEmpty())
+
+			{
 
 				// create monitors
 
-				final List<UaMonitoredItem> result = this.manager.createMonitoredItems(TimestampsToReturn.Both, items)
-						.get();
+				this.manager.createMonitoredItems(TimestampsToReturn.Both, items, (item, idx) -> {
 
-				// set value listeners
+					// set value listener
 
-				// FIXME: use atomic API when available
-
-				for (final UaMonitoredItem item : result) {
 					final Subscription s = subscriptions.get(item.getClientHandle());
 
 					if (item.getStatusCode().isBad()) {
@@ -210,7 +204,8 @@ public class SubscriptionManager {
 						this.goodSubscriptions.put(item.getClientHandle(), item);
 						item.setValueConsumer(s.getValueConsumer());
 					}
-				}
+
+				}).get();
 			}
 
 			if (!this.badSubscriptions.isEmpty()) {
@@ -300,24 +295,28 @@ public class SubscriptionManager {
 			}
 		}
 
-		public CompletableFuture<StatusCode> write(final String namespaceUri, final Integer namespaceIndex,
-				final String item, final DataValue value) {
+		public CompletableFuture<StatusCode> write(final NamespaceId namespaceId, final PartialNodeId partialNodeId,
+				final DataValue value) {
 
 			final CompletableFuture<UShort> future;
 
-			if (namespaceIndex != null) {
-				LOG.trace("Using provided index: {}", namespaceIndex);
-				future = CompletableFuture.completedFuture(Unsigned.ushort(namespaceIndex));
+			LOG.trace("Namespace: {}", namespaceId);
+			if (namespaceId.isNumeric()) {
+				LOG.trace("Using provided index: {}", namespaceId.getNumeric());
+				future = CompletableFuture.completedFuture(namespaceId.getNumeric());
 			} else {
-				LOG.trace("Looking up namespace: {}", namespaceUri);
-				future = lookupNamespaceIndex(namespaceUri);
+				LOG.trace("Looking up namespace: {}", namespaceId.getUri());
+				future = lookupNamespaceIndex(namespaceId.getUri());
 			}
 
 			return future.thenCompose(index -> {
 
-				return this.client.writeValue(new NodeId(index, item), value).whenComplete((status, error) -> {
+				final NodeId nodeId = partialNodeId.toNodeId(index);
+				LOG.debug("Node - partial: {}, full: {}", partialNodeId, nodeId);
+
+				return this.client.writeValue(nodeId, value).whenComplete((status, error) -> {
 					if (status != null) {
-						LOG.debug("Write to ns={}/{}, id={} = {} -> {}", namespaceUri, index, item, value, status);
+						LOG.debug("Write to ns={}/{}, id={} = {} -> {}", namespaceId, index, nodeId, value, status);
 					} else {
 						LOG.debug("Failed to write", error);
 					}
@@ -325,6 +324,7 @@ public class SubscriptionManager {
 
 			});
 		}
+
 	}
 
 	private final MiloClientConfiguration configuration;
@@ -528,12 +528,11 @@ public class SubscriptionManager {
 		}
 	}
 
-	public UInteger registerItem(final String namespaceUri, final Integer namespaceIndex, final String itemId,
+	public UInteger registerItem(final NamespaceId namespaceId, final PartialNodeId partialNodeId,
 			final Double samplingInterval, final Consumer<DataValue> valueConsumer) {
 
 		final UInteger clientHandle = Unsigned.uint(this.clientHandleCounter.incrementAndGet());
-		final Subscription subscription = new Subscription(namespaceUri, namespaceIndex, itemId, samplingInterval,
-				valueConsumer);
+		final Subscription subscription = new Subscription(namespaceId, partialNodeId, samplingInterval, valueConsumer);
 
 		synchronized (this) {
 			this.subscriptions.put(clientHandle, subscription);
@@ -554,14 +553,15 @@ public class SubscriptionManager {
 		}
 	}
 
-	public void write(final String namespaceUri, final Integer namespaceIndex, final String item, final DataValue value,
+	public void write(final NamespaceId namespaceId, final PartialNodeId partialNodeId, final DataValue value,
 			final boolean await) {
 		CompletableFuture<Object> future = null;
 
 		synchronized (this) {
 			if (this.connected != null) {
-				future = this.connected.write(namespaceUri, namespaceIndex, item, value).handleAsync((status, e) -> {
-					// handle outside the lock, running using handleAsync
+				future = this.connected.write(namespaceId, partialNodeId, value).handleAsync((status, e) -> {
+					// handle outside the lock, running using
+					// handleAsync
 					if (e != null) {
 						handleConnectionFailue(e);
 					}
