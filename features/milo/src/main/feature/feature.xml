@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<features
-    xmlns="http://karaf.apache.org/xmlns/features/v1.4.0"
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.4.0 http://karaf.apache.org/xmlns/features/v1.4.0"
     name="Camel :: Eclipse Milo">
-    
+
     <feature name="milo" version="${project.version}">
         <details>Eclipse Milo™</details>
-        
-        <feature prerequisite="true">wrap</feature>
-        
+
         <bundle>mvn:org.eclipse.milo/stack-core/${eclipse-milo-version}</bundle>
         <bundle>mvn:org.eclipse.milo/stack-client/${eclipse-milo-version}</bundle>
         <bundle>mvn:org.eclipse.milo/stack-server/${eclipse-milo-version}</bundle>
-        
+
         <bundle>mvn:org.eclipse.milo/sdk-core/${eclipse-milo-version}</bundle>
         <bundle>mvn:org.eclipse.milo/sdk-client/${eclipse-milo-version}</bundle>
         <bundle>mvn:org.eclipse.milo/sdk-server/${eclipse-milo-version}</bundle>
-        
+
         <bundle dependency="true">mvn:com.google.guava/guava/19.0</bundle>
         <bundle dependency="true">mvn:org.jooq/jool/0.9.10</bundle>
-        
+
         <bundle dependency="true">mvn:com.sun.xml.bind/jaxb-core/2.2.11</bundle>
         <bundle dependency="true">mvn:com.sun.xml.bind/jaxb-impl/2.2.11</bundle>
-        
+
         <bundle dependency="true">mvn:io.netty/netty-codec/4.0.36.Final</bundle>
         <bundle dependency="true">mvn:io.netty/netty-transport/4.0.36.Final</bundle>
         <bundle dependency="true">mvn:io.netty/netty-handler/4.0.36.Final</bundle>
         <bundle dependency="true">mvn:io.netty/netty-buffer/4.0.36.Final</bundle>
         <bundle dependency="true">mvn:io.netty/netty-common/4.0.36.Final</bundle>
-        
+
         <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/3.1.2</bundle>
         <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
         <bundle dependency="true">mvn:org.javassist/javassist/3.19.0-GA</bundle>
-        
+
         <bundle dependency="true">mvn:com.codepoetics/protonpack/1.10</bundle>
     </feature>
-    
+
     <feature name="camel-milo" version="${project.version}">
         <details>This is an Apache Camel adapter for OPC UA, based on the implementation of Eclipse Milo™</details>
-        
+
         <feature dependency="true">milo</feature>
-        
+
         <bundle dependency="true">mvn:com.google.guava/guava/19.0</bundle>
         <bundle dependency="true">mvn:org.apache.camel/camel-core/2.17.3</bundle>
-        
+
         <bundle>mvn:de.dentrassi.camel.milo/camel-milo/${project.version}</bundle>
     </feature>
 </features>
