@@ -83,6 +83,7 @@ In other words, shared connections located by the combination of endpoint URI an
 
 
 
+
 // endpoint options: START
 The Milo based OPC UA Client component supports 27 endpoint options which are listed below:
 
@@ -92,7 +93,7 @@ The Milo based OPC UA Client component supports 27 endpoint options which are li
 | endpointUri | common |  | String | *Required* The OPC UA server endpoint
 | clientId | common |  | String | A virtual client id to force the creation of a new connection instance
 | defaultAwaitWrites | common | false | boolean | Default await setting for writes
-| namespaceIndex | common |  | Integer | The namespace as inde deprecatedx
+| namespaceIndex | common |  | Integer | The namespace as numeric index deprecated
 | namespaceUri | common |  | String | The namespace as URI deprecated
 | node | common |  | ExpandedNodeId | The node definition (see Node ID)
 | nodeId | common |  | String | The node ID as string ID deprecated
@@ -118,6 +119,7 @@ The Milo based OPC UA Client component supports 27 endpoint options which are li
 | sessionTimeout | client |  | Long | Session timeout in milliseconds
 |=======================================================================
 // endpoint options: END
+
 
 
 
