@@ -11,13 +11,13 @@
         
         <feature prerequisite="true">wrap</feature>
         
-        <bundle>mvn:org.eclipse.milo/stack-core/0.1.0-SNAPSHOT</bundle>
-        <bundle>mvn:org.eclipse.milo/stack-client/0.1.0-SNAPSHOT</bundle>
-        <bundle>mvn:org.eclipse.milo/stack-server/0.1.0-SNAPSHOT</bundle>
+        <bundle>mvn:org.eclipse.milo/stack-core/${eclipse-milo-version}</bundle>
+        <bundle>mvn:org.eclipse.milo/stack-client/${eclipse-milo-version}</bundle>
+        <bundle>mvn:org.eclipse.milo/stack-server/${eclipse-milo-version}</bundle>
         
-        <bundle>mvn:org.eclipse.milo/sdk-core/0.1.0-SNAPSHOT</bundle>
-        <bundle>mvn:org.eclipse.milo/sdk-client/0.1.0-SNAPSHOT</bundle>
-        <bundle>mvn:org.eclipse.milo/sdk-server/0.1.0-SNAPSHOT</bundle>
+        <bundle>mvn:org.eclipse.milo/sdk-core/${eclipse-milo-version}</bundle>
+        <bundle>mvn:org.eclipse.milo/sdk-client/${eclipse-milo-version}</bundle>
+        <bundle>mvn:org.eclipse.milo/sdk-server/${eclipse-milo-version}</bundle>
         
         <bundle dependency="true">mvn:com.google.guava/guava/19.0</bundle>
         <bundle dependency="true">mvn:org.jooq/jool/0.9.10</bundle>
