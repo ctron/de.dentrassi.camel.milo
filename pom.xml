@@ -22,7 +22,7 @@
             <name>Jens Reimann</name>
             <email>jreimann@redhat.com</email>
 
-            <organization>Red Hat</organization>
+            <organization>Red Hat Inc</organization>
             <organizationUrl>http://redhat.com</organizationUrl>
         </developer>
     </developers>
@@ -41,14 +41,14 @@
     </licenses>
 
     <properties>
-        <eclipse-milo-version>0.1.0-SNAPSHOT</eclipse-milo-version>
+        <eclipse-milo-version>0.1.0</eclipse-milo-version>
         <apache-camel-version>2.17.0</apache-camel-version>
         <apache-camel-plugin-version>2.17.3</apache-camel-plugin-version>
         <slf4j-version>1.7.0</slf4j-version>
         <logback-version>1.1.7</logback-version>
         <apache-karaf-version>4.0.0</apache-karaf-version>
         <apache-karaf-plugin-version>4.0.7</apache-karaf-plugin-version>
-        
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
