@@ -3,7 +3,7 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.4.0 http://karaf.apache.org/xmlns/features/v1.4.0"
-    name="Camel :: Eclipse Milo">
+    name="camel-milo-${project.version}">
 
     <feature name="milo" version="${project.version}">
         <details>Eclipse Milo™</details>
