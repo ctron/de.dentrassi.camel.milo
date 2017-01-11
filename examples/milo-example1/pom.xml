@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>de.dentrassi.camel.milo</groupId>
-		<artifactId>parent</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
-	</parent>
-    
+    <parent>
+        <groupId>de.dentrassi.camel.milo</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
     <groupId>de.dentrassi.camel.milo.examples</groupId>
-	<artifactId>milo-example1</artifactId>
-	<packaging>bundle</packaging>
-	
-	<name>Eclipse Milo :: Examples :: Milo 1 - Blueprint</name>
+    <artifactId>milo-example1</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>Eclipse Milo :: Examples :: Milo 1 - Blueprint</name>
 
     <dependencies>
         <dependency>
@@ -24,16 +24,33 @@
             <artifactId>camel-milo</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-paho</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-			    <groupId>org.apache.felix</groupId>
-			    <artifactId>maven-bundle-plugin</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-			</plugin>
-		</plugins>
-	</build>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-maven-plugin</artifactId>
+                <configuration>
+                    <useBlueprint>true</useBlueprint>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
