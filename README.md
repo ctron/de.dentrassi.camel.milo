@@ -1,19 +1,11 @@
-# Apache Camel™ OPC UA Component [![Build status](https://api.travis-ci.org/ctron/de.dentrassi.camel.milo.svg "Travis Build Status")](https://travis-ci.org/ctron/de.dentrassi.camel.milo)
+# Apache Camel™ OPC UA Component [![Build status](https://api.travis-ci.org/ctron/de.dentrassi.camel.milo.svg "Travis Build Status")](https://travis-ci.org/ctron/de.dentrassi.camel.milo) [![Maven Central](https://img.shields.io/maven-central/v/de.dentrassi.camel.milo/camel-milo.svg)](https://search.maven.org/#search|ga|1|g%3A%22de.dentrassi.camel.milo%22%20AND%20a%3A%22camel-milo%22)
 
-This is an Apache Camel component for OPC UA client and server based on Eclipse Milo™.
+This is an Apache Camel component for providing OPC UA client and server functionality based on Eclipse Milo™.
 
 ## Build your own
 
-As of now there is no release of Eclipse Milo™, this is not since Milo is not stable enough,
-but simply due to the way releases work at the Eclipse Foundation.
+If you want to re-compile the component yourself try the following:
 
-So if you want to use Milo and the Apache Camel Milo adapter, you need to build it yourself.
-At least for the moment.
-
-    git clone https://github.com/eclipse/milo.git
-    cd milo
-    mvn clean install
-    cd ..
     git clone https://github.com/ctron/de.dentrassi.camel.milo.git
     cd de.dentrassi.camel.milo
     mvn clean install
