@@ -41,7 +41,7 @@
         <feature dependency="true">milo</feature>
 
         <bundle dependency="true">mvn:com.google.guava/guava/19.0</bundle>
-        <bundle dependency="true">mvn:org.apache.camel/camel-core/2.17.3</bundle>
+        <bundle dependency="true">mvn:org.apache.camel/camel-core/${apache-camel-version}</bundle>
 
         <bundle>mvn:de.dentrassi.camel.milo/camel-milo/${project.version}</bundle>
     </feature>
