@@ -5,7 +5,7 @@
 
     <groupId>de.dentrassi.camel.milo</groupId>
     <artifactId>parent</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>2.18.0</version>
     <packaging>pom</packaging>
 
     <name>Camel :: Eclipse Milo</name>
@@ -43,8 +43,8 @@
 
     <properties>
         <eclipse-milo-version>0.1.0</eclipse-milo-version>
-        <apache-camel-version>2.17.0</apache-camel-version>
-        <apache-camel-plugin-version>2.17.3</apache-camel-plugin-version>
+        <apache-camel-version>${project.version}</apache-camel-version>
+        <apache-camel-plugin-version>${project.version}</apache-camel-plugin-version>
         <slf4j-version>1.7.0</slf4j-version>
         <logback-version>1.1.7</logback-version>
         <apache-karaf-version>4.0.0</apache-karaf-version>
