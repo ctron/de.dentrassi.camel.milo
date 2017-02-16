@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Jens Reimann <jreimann@redhat.com>
+ * Copyright (C) 2016, 2017 Jens Reimann <jreimann@redhat.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.apache.camel.component.milo.client.internal;
 
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,8 +31,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.camel.component.milo.NamespaceId;
 import org.apache.camel.component.milo.PartialNodeId;
@@ -52,7 +49,6 @@ import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.serialization.xml.XmlEncoder;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
@@ -448,14 +444,14 @@ public class SubscriptionManager {
 					if (LOG.isDebugEnabled()) {
 						LOG.debug("Found enpoints:");
 						for (final EndpointDescription ep : endpoints) {
-							LOG.debug(toString(ep));
+							LOG.debug("\t{}", ep);
 						}
 					}
 
 					return findEndpoint(endpoints);
 				}).get();
 
-		LOG.debug("Selected endpoint: {}", toString(endpoint));
+		LOG.debug("Selected endpoint: {}", endpoint);
 
 		final URI uri = URI.create(this.configuration.getEndpointUri());
 
@@ -506,16 +502,6 @@ public class SubscriptionManager {
 			}
 		}
 		return best;
-	}
-
-	private String toString(final EndpointDescription ep) {
-		final StringWriter sw = new StringWriter();
-		try {
-			EndpointDescription.encode(ep, new XmlEncoder(sw));
-		} catch (final XMLStreamException e) {
-			return ep.toString();
-		}
-		return sw.toString();
 	}
 
 	protected synchronized void whenConnected(final Worker<Connected> worker) {
