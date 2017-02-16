@@ -11,7 +11,6 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>de.dentrassi.camel.milo</groupId>
     <artifactId>feature</artifactId>
     <packaging>kar</packaging>
 
@@ -67,6 +66,7 @@
                             <descriptors>
                                 <descriptor>mvn:org.apache.karaf.features/framework/${apache-karaf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/standard/${apache-karaf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${apache-camel-version}/xml/features</descriptor>
                                 <descriptor>file:${project.build.directory}/feature/feature.xml</descriptor>
                             </descriptors>
                             <features>

@@ -2,6 +2,19 @@
 
 This is an Apache Camel component for providing OPC UA client and server functionality based on Eclipse Milo™.
 
+## Install into Karaf
+
+To install `camel-milo` into a Karaf 4+ container run the following commands inside the Karaf shell:
+
+    feature:repo-add mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features
+    feature:repo-add mvn:de.dentrassi.camel.milo/feature/0.1.1-SNAPSHOT/xml/features
+    feature:install camel-milo
+
+If you want to install use a different version of Camel, this is possible by selecting a different Camel
+feature version:
+
+    feature:repo-add mvn:org.apache.camel.karaf/apache-camel/2.17.0/xml/features
+
 ## Build your own
 
 If you want to re-compile the component yourself try the following:
@@ -10,5 +23,5 @@ If you want to re-compile the component yourself try the following:
     cd de.dentrassi.camel.milo
     mvn clean install
     
-Et voilà … you have a Karaf archive (KAR) at `features/milo/target/milo-0.1.0-SNAPSHOT.kar`
+Et voilà … you have a Karaf archive (KAR) at `features/milo/target/milo-*.kar`
 which contains a Karaf repository with all the dependencies that you need.
