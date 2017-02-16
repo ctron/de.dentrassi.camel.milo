@@ -203,6 +203,8 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>
+                    <!-- require "install" to satisfy karaf:verify  -->
+                    <preparationGoals>clean install</preparationGoals>
                     <goals>deploy</goals>
                     <tagNameFormat>camel-milo-@{project.version}</tagNameFormat>
                 </configuration>
