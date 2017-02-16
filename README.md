@@ -7,7 +7,7 @@ This is an Apache Camel component for providing OPC UA client and server functio
 To install `camel-milo` into a Karaf 4+ container run the following commands inside the Karaf shell:
 
     feature:repo-add mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features
-    feature:repo-add mvn:de.dentrassi.camel.milo/feature/0.1.1-SNAPSHOT/xml/features
+    feature:repo-add mvn:de.dentrassi.camel.milo/feature/0.1.2/xml/features
     feature:install camel-milo
 
 If you want to install use a different version of Camel, this is possible by selecting a different Camel
