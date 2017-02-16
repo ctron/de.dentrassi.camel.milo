@@ -3,8 +3,8 @@ In order to use this example download and run Karaf:
     karaf> feature:repo-add mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features
     karaf> feature:install aries-blueprint
     karaf> feature:install shell-compat camel camel-blueprint camel-paho
-    karaf> kar:install file:location/to/milo-0.1.0-SNAPSHOT.kar
-    karaf> bundle:install -s file:location/to/examples/milo-0.1.0-SNAPSHOT.jar
+    karaf> kar:install file:location/to/milo-2.18.0-SNAPSHOT.kar
+    karaf> bundle:install -s file:location/to/examples/milo-2.18.0-SNAPSHOT.jar
     
 Now the Camel route should be running and you can look at the log:
 
