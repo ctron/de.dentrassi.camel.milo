@@ -1,3 +1,5 @@
+**Note:** This component is now available in Apache Camel 2.19.0 out of the box. This repository will no longer be maintained. If you want the most recent version, please switch to Apache Camel.
+
 # Apache Camel™ OPC UA Component [![Build status](https://api.travis-ci.org/ctron/de.dentrassi.camel.milo.svg "Travis Build Status")](https://travis-ci.org/ctron/de.dentrassi.camel.milo) [![Maven Central](https://img.shields.io/maven-central/v/de.dentrassi.camel.milo/camel-milo.svg)](https://search.maven.org/#search|ga|1|g%3A%22de.dentrassi.camel.milo%22%20AND%20a%3A%22camel-milo%22)
 
 This is an Apache Camel component for providing OPC UA client and server functionality based on Eclipse Milo™.
